@@ -7,8 +7,6 @@ const ListProperty = () => {
             {/* Header đơn giản dành riêng cho trang đối tác */}
             <header className="bg-booking-blue py-4 px-6 flex justify-between items-center shadow-md">
                 <div className="flex items-center gap-4 text-white text-sm">
-                    <span className="hidden md:inline italic">Bạn đã bắt đầu đăng ký?</span>
-                    <Link to="/login" className="border border-white px-4 py-1 rounded hover:bg-white hover:text-booking-blue transition">Tiếp tục đăng ký</Link>
                 </div>
             </header>
 
@@ -28,9 +26,11 @@ const ListProperty = () => {
                         <p className="text-lg mb-6 text-gray-600">
                             Dù bạn có một căn hộ nhỏ hay cả một hệ thống khách sạn, hãy bắt đầu tiếp cận hàng triệu khách du lịch ngay hôm nay.
                         </p>
-                        <button className="w-full bg-booking-blue text-white py-4 rounded font-bold text-xl hover:bg-booking-dark transition shadow-lg">
-                            Bắt đầu ngay
-                        </button>
+                        <Link to="/register" className="block w-full">
+                            <button className="w-full bg-booking-blue text-white py-4 rounded font-bold text-xl hover:bg-booking-dark transition shadow-lg">
+                                Bắt đầu ngay
+                            </button>
+                        </Link>
                         <div className="h-px bg-gray-200 my-4"></div>
                         <p className="text-sm text-center text-gray-500">
                             Hơn 6,4 triệu căn hộ, biệt thự và các chỗ nghỉ độc đáo khác đã được đăng ký.
