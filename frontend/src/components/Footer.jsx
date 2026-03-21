@@ -10,9 +10,19 @@ const Footer = () => {
                 
                 <ul className="flex flex-wrap justify-center space-x-4 space-y-2 md:space-y-0 text-sm font-semibold underline mb-4">
                     <li><a href="#">Tài khoản của bạn</a></li>
-                    <li><a href="#">Trợ giúp Dịch vụ Khách hàng</a></li>
-                    <li><a href="#">Trở thành đối tác liên kết</a></li>
-                    <li><a href="#">Booking.com dành cho Doanh nghiệp</a></li>
+                    <Link to="/customer-service" className="hover:text-blue-400">
+                        Dịch vụ khách hàng
+                    </Link>
+                    <li>
+                        <Link to="/become-partner" className="hover:text-blue-400">
+                            Trở thành đối tác liên kết
+                        </Link>
+                    </li>
+                    <li>
+                        <Link to="/business" className="hover:text-blue-400">
+                            Booking.com dành cho Doanh nghiệp
+                        </Link>
+                    </li>
                 </ul>
             </div>
             

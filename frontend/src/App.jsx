@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -11,27 +11,46 @@ import CarRental from "./pages/CarRental";
 import Attractions from "./pages/Attractions";
 import AirportTaxis from "./pages/AirportTaxis";
 import ListProperty from './pages/ListProperty';
+import Careers from './pages/Careers';
+import SearchResults from './pages/SearchResults';
+import CustomerService from './pages/CustomerService';
+import BecomePartner from './pages/BecomePartner';
+import Business from './pages/Business';
 
 function AppContent() {
   const location = useLocation();
-  // Don't show Navbar/Footer on Auth pages
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const { pathname } = location;
+
+  // Tự động cuộn lên đầu trang mỗi khi chuyển trang (Chuyển vào đây)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  // Kiểm tra nếu là trang Auth thì ẩn Navbar/Footer
+  const isAuthPage = pathname === '/login' || pathname === '/register';
 
   return (
     <div className="flex flex-col min-h-screen">
       {!isAuthPage && <Navbar />}
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/flights" element={<Flights />} />
-        <Route path="/flight-hotel" element={<FlightAndHotel />} />
-        <Route path="/car-rentals" element={<CarRental />} />
-        <Route path="/attractions" element={<Attractions />} />
-        <Route path="/airport-taxis" element={<AirportTaxis />} />
-        <Route path="/list-your-property" element={<ListProperty />} />
-      </Routes>
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/flights" element={<Flights />} />
+          <Route path="/flight-hotel" element={<FlightAndHotel />} />
+          <Route path="/car-rentals" element={<CarRental />} />
+          <Route path="/attractions" element={<Attractions />} />
+          <Route path="/airport-taxis" element={<AirportTaxis />} />
+          <Route path="/list-your-property" element={<ListProperty />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/search-results" element={<SearchResults />} />
+          <Route path="/customer-service" element={<CustomerService />} />
+          <Route path="/become-partner" element={<BecomePartner />} />
+          <Route path="/business" element={<Business />} />
+        </Routes>
+      </main>
 
       {!isAuthPage && <Footer />}
     </div>
