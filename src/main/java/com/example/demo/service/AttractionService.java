@@ -13,7 +13,7 @@ public class AttractionService {
     @Autowired
     private AttractionRepository attractionRepository;
 
-    public List<Attraction> searchAttractions(String city) {
+    public List<Attraction> searchAttractions(String city, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
         return attractionRepository.findAll().stream()
                  .filter(a -> a.getCity().equalsIgnoreCase(city))
                  .collect(Collectors.toList());

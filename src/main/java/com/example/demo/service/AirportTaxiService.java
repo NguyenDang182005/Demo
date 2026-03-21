@@ -13,7 +13,12 @@ public class AirportTaxiService {
     @Autowired
     private AirportTaxiRepository airportTaxiRepository;
 
-    public List<AirportTaxi> searchTaxisByAirport(String airportCode) {
+    public List<AirportTaxi> searchTaxisByAirport(String airportCode, java.time.LocalDateTime pickupTime) {
+        if (pickupTime != null) {
+            java.time.LocalDateTime start = pickupTime.minusHours(2);
+            java.time.LocalDateTime end = pickupTime.plusHours(2);
+            return airportTaxiRepository.findAvailableTaxis(airportCode, start, end);
+        }
         return airportTaxiRepository.findAll().stream()
                  .filter(t -> t.getAirport() != null && t.getAirport().getCode().equalsIgnoreCase(airportCode))
                  .collect(Collectors.toList());

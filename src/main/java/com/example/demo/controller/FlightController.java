@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.Airport;
 import com.example.demo.entity.Flight;
+import com.example.demo.repository.AirportRepository;
 import com.example.demo.service.FlightService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,6 +18,14 @@ public class FlightController {
 
     @Autowired
     private FlightService flightService;
+    
+    @Autowired
+    private AirportRepository airportRepository;
+
+    @GetMapping("/airports")
+    public List<Airport> getAllAirports() {
+        return airportRepository.findAll();
+    }
 
     @GetMapping
     public List<Flight> getAllFlights() {
@@ -26,7 +36,8 @@ public class FlightController {
     public List<Flight> searchFlights(
             @RequestParam String departureCode,
             @RequestParam String arrivalCode,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime departureDate) {
-        return flightService.searchFlights(departureCode, arrivalCode, departureDate);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        return flightService.searchFlights(departureCode, arrivalCode, startDate, endDate);
     }
 }

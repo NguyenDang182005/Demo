@@ -1,8 +1,12 @@
 -- Database Seed Data Script
+-- Set the database
+USE booking_db;
+
 -- Tắt kiểm tra khóa ngoại để có thể xóa bảng có ràng buộc
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- Xóa dữ liệu cũ (Xóa bảng con trước, bảng cha sau)
+TRUNCATE TABLE reviews;
 TRUNCATE TABLE taxi_bookings;
 TRUNCATE TABLE attraction_bookings;
 TRUNCATE TABLE car_rental_bookings;
@@ -28,10 +32,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ==========================================
 -- 1. Create Users
 -- ==========================================
-INSERT INTO users (id, email, password_hash, full_name, phone_number) VALUES 
-(1, 'customer1@example.com', 'hashed_pw_1', 'Nguyen Van A', '0901234567'),
-(2, 'hotelowner@example.com', 'hashed_pw_2', 'Tran Thi B', '0987654321'),
-(3, 'admin@example.com', 'hashed_pw_3', 'Admin System', '0999999999');
+INSERT INTO users (id, email, password, full_name, phone_number, role) VALUES 
+(1, 'customer1@example.com', '$2a$10$xyz...', 'Nguyen Van A', '0901234567', 'CUSTOMER'),
+(2, 'hotelowner1@example.com', '$2a$10$xyz...', 'Tran Thi B', '0987654321', 'OWNER'),
+(3, 'admin@example.com', '$2a$10$xyz...', 'Admin System', '0999999999', 'ADMIN'),
+(4, 'customer2@example.com', '$2a$10$xyz...', 'Le Van C', '0912345678', 'CUSTOMER');
 
 
 -- ==========================================
@@ -57,7 +62,7 @@ INSERT INTO car_locations (id, name, city) VALUES
 
 
 -- ==========================================
--- 4. Create Hotels (Lưu ý: database của bạn DB.sql KHÔNG có trường owner_id và image_url ở bảng hotels)
+-- 4. Create Hotels
 -- ==========================================
 INSERT INTO hotels (id, name, description, address, city, rating) VALUES 
 (1, 'Vinpearl Landmark 81', 'Khách sạn cao nhất Việt Nam với view toàn thành phố.', '720A Điện Biên Phủ, Vinhomes Tân Cảng, Bình Thạnh', 'Hồ Chí Minh', 5.0),
@@ -67,7 +72,7 @@ INSERT INTO hotels (id, name, description, address, city, rating) VALUES
 
 
 -- ==========================================
--- 5. Create Rooms for Hotels (Bảng này có image_url)
+-- 5. Create Rooms for Hotels
 -- ==========================================
 INSERT INTO rooms (id, hotel_id, room_type, price_per_night, max_adults, max_children) VALUES 
 (1, 1, 'Standard Room', 1500000, 2, 1),
@@ -78,7 +83,7 @@ INSERT INTO rooms (id, hotel_id, room_type, price_per_night, max_adults, max_chi
 
 
 -- ==========================================
--- 6. Create Flights (Sử dụng CURDATE)
+-- 6. Create Flights
 -- ==========================================
 INSERT INTO flights (id, airline, flight_number, departure_airport_code, arrival_airport_code, departure_time, arrival_time, price) VALUES 
 (1, 'Vietnam Airlines', 'VN213', 'HAN', 'SGN', CONCAT(CURDATE(), ' 08:30:00'), CONCAT(CURDATE(), ' 10:45:00'), 1800000),
@@ -119,3 +124,35 @@ INSERT INTO airport_taxis (id, airport_code, car_type, base_price) VALUES
 (3, 'HAN', 'Sedan 4 chỗ', 300000),
 (4, 'HAN', 'Limousine 9 chỗ', 600000),
 (5, 'DAD', 'SUV 7 chỗ', 300000);
+
+
+-- ==========================================
+-- 10. Create Bookings
+-- ==========================================
+INSERT INTO bookings (id, user_id, booking_type, total_price, status) VALUES 
+(1, 1, 'HOTEL', 3000000, 'CONFIRMED'),
+(2, 1, 'FLIGHT', 1800000, 'PENDING'),
+(3, 4, 'CAR_RENTAL', 1600000, 'COMPLETED');
+
+
+-- ==========================================
+-- 11. Create Booking Details
+-- ==========================================
+INSERT INTO hotel_bookings (booking_id, room_id, check_in_date, check_out_date, adults, children, rooms_count) VALUES 
+(1, 1, ADDDATE(CURDATE(), 5), ADDDATE(CURDATE(), 7), 2, 0, 1);
+
+INSERT INTO flight_bookings (booking_id, flight_id, seat_class, is_roundtrip, passengers_count) VALUES 
+(2, 1, 'ECONOMY', FALSE, 1);
+
+INSERT INTO car_rental_bookings (booking_id, car_id, pickup_location_id, dropoff_location_id, pickup_datetime, dropoff_datetime) VALUES 
+(3, 1, 2, 2, CONCAT(CURDATE(), ' 08:00:00'), CONCAT(ADDDATE(CURDATE(), 2), ' 18:00:00'));
+
+
+-- ==========================================
+-- 12. Create Reviews
+-- ==========================================
+INSERT INTO reviews (user_id, hotel_id, rating, comment) VALUES 
+(1, 1, 5, 'Tuyệt vời! View Landmark 81 thật sự ấn tượng.'),
+(4, 1, 4, 'Phòng sạch sẽ, phục vụ tận tình.'),
+(1, 2, 5, 'Bữa sáng rất ngon, view hồ Tây cực chill.'),
+(4, 3, 4, 'Hồ bơi đẹp nhưng đồ ăn hơi đắt.');

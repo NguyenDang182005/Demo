@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DatePicker, Select, Checkbox, ConfigProvider } from 'antd';
 import { Button } from '@mui/material';
 import dayjs from 'dayjs';
@@ -14,6 +14,20 @@ const CarRental = () => {
   const [pickupDatetime, setPickupDatetime] = useState(null);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [locations, setLocations] = useState([]);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const response = await axios.get('/api/cars/locations');
+        const uniqueCities = [...new Set(response.data.map(item => item.city))];
+        setLocations(uniqueCities);
+      } catch (error) {
+        console.error("Error fetching locations", error);
+      }
+    };
+    fetchLocations();
+  }, []);
 
   // Vô hiệu hóa các ngày đã qua
   const disabledDate = (current) => {
@@ -27,8 +41,8 @@ const CarRental = () => {
     }
     setLoading(true);
     try {
-      const pickupIso = pickupDatetime[0].toISOString();
-      const dropoffIso = pickupDatetime[1].toISOString();
+      const pickupIso = pickupDatetime[0].format('YYYY-MM-DDTHH:mm:ss');
+      const dropoffIso = pickupDatetime[1].format('YYYY-MM-DDTHH:mm:ss');
       const response = await axios.get(`/api/cars/search`, {
         params: {
           pickupCity: pickupCity,
@@ -81,10 +95,7 @@ const CarRental = () => {
                     variant="borderless"
                     className="w-full"
                     onChange={(val) => setPickupCity(val)}
-                    options={[
-                      { value: 'TP Hồ Chí Minh', label: 'Thành phố Hồ Chí Minh' },
-                      { value: 'Hà Nội', label: 'Thủ đô Hà Nội' },
-                    ]}
+                    options={locations.map(city => ({ value: city, label: city }))}
                   />
                 </div>
               </div>

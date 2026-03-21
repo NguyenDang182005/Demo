@@ -1,8 +1,21 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import PersonIcon from '@mui/icons-material/Person';
 
 const Navbar = () => {
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const token = localStorage.getItem('booking_token');
+    const userName = localStorage.getItem('booking_name');
+
+    const handleLogout = () => {
+        localStorage.removeItem('booking_token');
+        localStorage.removeItem('booking_user');
+        localStorage.removeItem('booking_name');
+        localStorage.removeItem('booking_role');
+        navigate('/login');
+    };
 
     // Hàm helper để định dạng class cho các mục Menu
     const navLinkClass = (isActive) => 
@@ -42,13 +55,30 @@ const Navbar = () => {
                         </button>
                     </Link>
 
-                    <div className="flex space-x-2">
-                        <Link to="/register" className="bg-white text-booking-blue px-4 py-2 rounded font-bold hover:bg-gray-100 transition-colors">
-                            Đăng ký
-                        </Link>
-                        <Link to="/login" className="bg-white text-booking-blue px-4 py-2 rounded font-bold hover:bg-gray-100 transition-colors">
-                            Đăng nhập
-                        </Link>
+                    <div className="flex space-x-2 items-center">
+                        {token ? (
+                            <>
+                                <div className="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-full cursor-pointer hover:bg-white/20 transition-colors">
+                                    <PersonIcon className="text-white" />
+                                    <span className="text-white font-bold">{userName}</span>
+                                </div>
+                                <button 
+                                    onClick={handleLogout}
+                                    className="bg-white text-booking-blue px-4 py-2 rounded font-bold hover:bg-gray-100 transition-colors text-sm"
+                                >
+                                    Đăng xuất
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/register" className="bg-white text-booking-blue px-4 py-2 rounded font-bold hover:bg-gray-100 transition-colors">
+                                    Đăng ký
+                                </Link>
+                                <Link to="/login" className="bg-white text-booking-blue px-4 py-2 rounded font-bold hover:bg-gray-100 transition-colors">
+                                    Đăng nhập
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
 

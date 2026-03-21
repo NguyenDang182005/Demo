@@ -21,7 +21,10 @@ public class AttractionController {
     }
 
     @GetMapping("/search")
-    public List<Attraction> searchAttractions(@RequestParam String city) {
-        return attractionService.searchAttractions(city);
+    public List<Attraction> searchAttractions(
+            @RequestParam String city,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate) {
+        return attractionService.searchAttractions(city, startDate, endDate);
     }
 }

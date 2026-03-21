@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DatePicker, Select, Radio, ConfigProvider } from 'antd';
 import { Button } from '@mui/material';
 import dayjs from 'dayjs';
@@ -20,6 +20,19 @@ const Flights = () => {
   const [departureDate, setDepartureDate] = useState(null);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [airports, setAirports] = useState([]);
+
+  useEffect(() => {
+    const fetchAirports = async () => {
+      try {
+        const response = await axios.get('/api/flights/airports');
+        setAirports(response.data);
+      } catch (error) {
+        console.error("Error fetching airports", error);
+      }
+    };
+    fetchAirports();
+  }, []);
 
   const handleSearch = async () => {
     if (!departureCode || !arrivalCode || !departureDate) {
@@ -29,12 +42,14 @@ const Flights = () => {
     setLoading(true);
     try {
       // Format required by Spring @DateTimeFormat(iso)
-      const isoDate = departureDate[0].startOf('day').toISOString();
+      const startDate = departureDate[0].startOf('day').format('YYYY-MM-DDTHH:mm:ss');
+      const endDate = departureDate[1].endOf('day').format('YYYY-MM-DDTHH:mm:ss');
       const response = await axios.get(`/api/flights/search`, {
         params: {
           departureCode: departureCode,
           arrivalCode: arrivalCode,
-          departureDate: isoDate
+          startDate: startDate,
+          endDate: endDate
         }
       });
       setResults(response.data);
@@ -78,7 +93,7 @@ const Flights = () => {
                     variant="borderless"
                     className="w-full"
                     onChange={(val) => setDepartureCode(val)}
-                    options={[{ value: 'HAN', label: 'Hà Nội (HAN)' }, { value: 'SGN', label: 'TP. HCM (SGN)' }]} />
+                    options={airports.map(a => ({ value: a.code, label: `${a.city} (${a.code})` }))} />
                 </div>
               </div>
 
@@ -93,7 +108,7 @@ const Flights = () => {
                     variant="borderless"
                     className="w-full"
                     onChange={(val) => setArrivalCode(val)}
-                    options={[{ value: 'DAD', label: 'Đà Nẵng (DAD)' }, { value: 'PQC', label: 'Phú Quốc (PQC)' }]} />
+                    options={airports.map(a => ({ value: a.code, label: `${a.city} (${a.code})` }))} />
                 </div>
               </div>
 

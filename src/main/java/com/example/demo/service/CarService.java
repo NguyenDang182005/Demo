@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CarService {
@@ -15,9 +14,7 @@ public class CarService {
     private CarRepository carRepository;
 
     public List<Car> searchCars(String pickupCity, LocalDateTime pickupTime, LocalDateTime dropoffTime) {
-         return carRepository.findAll().stream()
-                 .filter(c -> c.getLocation() != null && c.getLocation().getCity().equalsIgnoreCase(pickupCity))
-                 .collect(Collectors.toList());
+         return carRepository.findAvailableCars(pickupCity, pickupTime, dropoffTime);
     }
     
     public List<Car> getAllCars() {

@@ -10,6 +10,7 @@ const Attractions = () => {
   const disabledDate = (current) => current && current < dayjs().startOf('day');
 
   const [city, setCity] = useState('');
+  const [dates, setDates] = useState(null);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -20,8 +21,13 @@ const Attractions = () => {
     }
     setLoading(true);
     try {
+      const params = { city: city };
+      if (dates && dates.length === 2 && dates[0] && dates[1]) {
+        params.startDate = dates[0].startOf('day').format('YYYY-MM-DDTHH:mm:ss');
+        params.endDate = dates[1].endOf('day').format('YYYY-MM-DDTHH:mm:ss');
+      }
       const response = await axios.get(`/api/attractions/search`, {
-        params: { city: city }
+        params: params
       });
       setResults(response.data);
     } catch (error) {
@@ -68,6 +74,7 @@ const Attractions = () => {
                 variant="borderless"
                 className="w-full"
                 placeholder={['Từ ngày', 'Đến ngày']}
+                onChange={(val) => setDates(val)}
               />
             </div>
             <div className="md:col-span-3">

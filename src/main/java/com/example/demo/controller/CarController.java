@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.Car;
+import com.example.demo.entity.CarLocation;
+import com.example.demo.repository.CarLocationRepository;
 import com.example.demo.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,6 +18,14 @@ public class CarController {
 
     @Autowired
     private CarService carService;
+    
+    @Autowired
+    private CarLocationRepository carLocationRepository;
+
+    @GetMapping("/locations")
+    public List<CarLocation> getAllLocations() {
+        return carLocationRepository.findAll();
+    }
 
     @GetMapping
     public List<Car> getAllCars() {

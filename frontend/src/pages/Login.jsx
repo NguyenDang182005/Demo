@@ -24,6 +24,8 @@ const Login = () => {
             // Lưu token vào localStorage
             localStorage.setItem('booking_token', response.data.token);
             localStorage.setItem('booking_user', response.data.email);
+            localStorage.setItem('booking_name', response.data.fullName || response.data.email);
+            localStorage.setItem('booking_role', response.data.role);
 
             // Chuyển hướng về trang chủ
             navigate('/');

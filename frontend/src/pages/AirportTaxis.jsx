@@ -8,6 +8,8 @@ const AirportTaxis = () => {
   const disabledDate = (current) => current && current < dayjs().startOf('day');
 
   const [airportCode, setAirportCode] = useState('');
+  const [date, setDate] = useState(null);
+  const [time, setTime] = useState(null);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -18,8 +20,13 @@ const AirportTaxis = () => {
     }
     setLoading(true);
     try {
+      const params = { airportCode: airportCode };
+      if (date && time) {
+        const pickupDatetime = date.hour(time.hour()).minute(time.minute()).second(0);
+        params.pickupTime = pickupDatetime.format('YYYY-MM-DDTHH:mm:ss');
+      }
       const response = await axios.get(`/api/airport-taxis/search`, {
-        params: { airportCode: airportCode }
+        params: params
       });
       setResults(response.data);
     } catch (error) {
@@ -74,12 +81,12 @@ const AirportTaxis = () => {
               {/* Ngày và Giờ */}
               <div className="md:col-span-2 border rounded-lg p-2 bg-white">
                 <span className="text-[10px] font-bold text-gray-500 uppercase px-3">Ngày đón</span>
-                <DatePicker disabledDate={disabledDate} variant="borderless" className="w-full" />
+                <DatePicker disabledDate={disabledDate} variant="borderless" className="w-full" onChange={(d) => setDate(d)} />
               </div>
 
               <div className="md:col-span-2 border rounded-lg p-2 bg-white">
                 <span className="text-[10px] font-bold text-gray-500 uppercase px-3">Giờ đón</span>
-                <TimePicker format="HH:mm" variant="borderless" className="w-full" />
+                <TimePicker format="HH:mm" variant="borderless" className="w-full" onChange={(t) => setTime(t)} />
               </div>
             </div>
 
