@@ -53,8 +53,8 @@ const Account = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium ${activeTab === tab.id
-                      ? 'bg-blue-50 text-booking-blue'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent hover:border-gray-100'
+                    ? 'bg-blue-50 text-booking-blue'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent hover:border-gray-100'
                     }`}
                 >
                   <span className={`${activeTab === tab.id ? 'text-booking-blue' : 'text-gray-400'}`}>
