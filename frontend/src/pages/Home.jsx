@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DatePicker, ConfigProvider, InputNumber, Popover, AutoComplete } from 'antd';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 const { RangePicker } = DatePicker;
 
 const Home = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     
     // States cho tìm kiếm
@@ -50,15 +52,15 @@ const Home = () => {
     const content = (
         <div className="p-5 space-y-4 w-72 bg-white rounded-xl shadow-xl">
             <div className="flex justify-between items-center">
-                <span className="font-semibold text-gray-700">Người lớn</span>
+                <span className="font-semibold text-gray-700">{t('home.searchAdults')}</span>
                 <InputNumber min={1} max={30} value={options.adult} onChange={(val) => setOptions({...options, adult: val})} className="rounded-lg" />
             </div>
             <div className="flex justify-between items-center">
-                <span className="font-semibold text-gray-700">Trẻ em</span>
+                <span className="font-semibold text-gray-700">{t('home.searchChildren')}</span>
                 <InputNumber min={0} max={10} value={options.children} onChange={(val) => setOptions({...options, children: val})} className="rounded-lg" />
             </div>
             <div className="flex justify-between items-center">
-                <span className="font-semibold text-gray-700">Phòng</span>
+                <span className="font-semibold text-gray-700">{t('home.searchRooms')}</span>
                 <InputNumber min={1} max={10} value={options.room} onChange={(val) => setOptions({...options, room: val})} className="rounded-lg" />
             </div>
         </div>
@@ -73,10 +75,10 @@ const Home = () => {
                 
                 <div className="max-w-6xl mx-auto relative z-10 animate-fade-in-up">
                     <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight drop-shadow-md">
-                        Tìm chỗ nghỉ tiếp theo
+                        {t('home.heroTitle')}
                     </h1>
                     <p className="text-xl md:text-2xl font-medium text-blue-100 max-w-2xl drop-shadow-sm">
-                        Tìm ưu đãi khách sạn, chỗ nghỉ dạng nhà ở và nhiều hơn nữa...
+                        {t('home.heroSubtitle')}
                     </p>
                 </div>
             </div>
@@ -95,7 +97,7 @@ const Home = () => {
                                     option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
                                 }
                                 style={{ width: '100%' }}
-                                placeholder="Bạn muốn đến đâu?"
+                                placeholder={t('home.searchDestPlaceholder')}
                                 value={destination}
                                 onChange={(val) => setDestination(val)}
                                 variant="borderless"
@@ -108,7 +110,7 @@ const Home = () => {
                             <ConfigProvider theme={{ token: { colorPrimary: '#003b95', borderRadius: 8 } }}>
                                 <RangePicker 
                                     className="w-full font-semibold text-lg cursor-pointer" 
-                                    placeholder={['Ngày nhận', 'Ngày trả']}
+                                    placeholder={[t('home.searchDateCheckIn'), t('home.searchDateCheckOut')]}
                                     onChange={(val) => setDates(val)}
                                     variant="borderless"
                                     separator={<i className="fa-solid fa-arrow-right text-gray-400 text-sm"></i>}
@@ -117,11 +119,11 @@ const Home = () => {
                         </div>
 
                         {/* Khách/Phòng */}
-                        <Popover content={content} title={<span className="font-bold text-gray-800 text-lg">Số lượng</span>} trigger="click" placement="bottom">
+                        <Popover content={content} title={<span className="font-bold text-gray-800 text-lg">{t('home.searchGuests')}</span>} trigger="click" placement="bottom">
                             <div className="flex-1 flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors">
                                 <i className="fa-regular fa-user text-gray-400 mr-3 text-xl"></i>
                                 <span className="text-gray-700 font-semibold text-lg truncate flex-1">
-                                    {options.adult} người lớn · {options.children} trẻ em · {options.room} phòng
+                                    {options.adult} {t('home.searchAdults')} · {options.children} {t('home.searchChildren')} · {options.room} {t('home.searchRooms')}
                                 </span>
                                 <i className="fa-solid fa-chevron-down text-gray-400 text-sm ml-2"></i>
                             </div>
@@ -134,7 +136,7 @@ const Home = () => {
                             className="bg-[#003b95] hover:bg-blue-800 text-white font-bold text-xl px-12 py-4 transition-all duration-300 transform active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300"
                         >
                             <span className="flex items-center justify-center space-x-2">
-                                <span>Tìm kiếm</span>
+                                <span>{t('home.searchButton')}</span>
                             </span>
                         </button>
 
@@ -144,8 +146,8 @@ const Home = () => {
 
             {/* Điểm đến thịnh hành */}
             <div className="max-w-6xl mx-auto px-4 py-16">
-                <h2 className="text-3xl font-extrabold text-gray-800 mb-2">Điểm đến thịnh hành</h2>
-                <p className="text-gray-500 mb-8 text-lg">Các lựa chọn phổ biến nhất dành cho du khách từ Việt Nam</p>
+                <h2 className="text-3xl font-extrabold text-gray-800 mb-2">{t('home.trendingTitle')}</h2>
+                <p className="text-gray-500 mb-8 text-lg">{t('home.trendingSubtitle')}</p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* HCMC Card */}
@@ -170,7 +172,7 @@ const Home = () => {
                                 TP. Hồ Chí Minh
                                 <img src="https://flagcdn.com/w40/vn.png" className="w-6 h-4 ml-3 rounded-sm shadow-sm" alt="Vietnam" />
                             </h3>
-                            <p className="text-blue-100 font-medium transform group-hover:-translate-y-1 transition-transform delay-75">1,234 chỗ nghỉ</p>
+                            <p className="text-blue-100 font-medium transform group-hover:-translate-y-1 transition-transform delay-75">1,234 {t('home.properties')}</p>
                         </div>
                     </div>
 
@@ -195,7 +197,7 @@ const Home = () => {
                                 Đà Lạt
                                 <img src="https://flagcdn.com/w40/vn.png" className="w-6 h-4 ml-3 rounded-sm shadow-sm" alt="Vietnam" />
                             </h3>
-                            <p className="text-blue-100 font-medium transform group-hover:-translate-y-1 transition-transform delay-75">856 chỗ nghỉ</p>
+                            <p className="text-blue-100 font-medium transform group-hover:-translate-y-1 transition-transform delay-75">856 {t('home.properties')}</p>
                         </div>
                     </div>
                 </div>

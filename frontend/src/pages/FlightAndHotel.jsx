@@ -6,10 +6,12 @@ import axios from 'axios';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import HotelIcon from '@mui/icons-material/Hotel';
 import GroupIcon from '@mui/icons-material/Group';
+import { useTranslation } from 'react-i18next';
 
 const { RangePicker } = DatePicker;
 
 const FlightAndHotel = () => {
+  const { t } = useTranslation();
   const disabledDate = (current) => current && current < dayjs().startOf('day');
 
   const [airports, setAirports] = useState([]);
@@ -42,7 +44,7 @@ const FlightAndHotel = () => {
 
   const handleSearch = () => {
     if (!departureCode || !destination) {
-      alert("Vui lòng chọn điểm đi và điểm đến");
+      alert(t('common.pleaseSelectOriginDest') || "Vui lòng chọn điểm đi và điểm đến");
       return;
     }
     setSearching(true);
@@ -54,26 +56,28 @@ const FlightAndHotel = () => {
       <div className="w-full flex flex-col items-center bg-gray-50 min-h-screen">
         
         {/* Banner Đặc trưng cho Packages */}
-        <div className="search-banner">
-          <div className="section-container">
-            <h1 className="text-4xl font-bold mb-3">Chuyến đi trọn gói: Máy bay + Khách sạn</h1>
-            <p className="text-xl opacity-90">Tiết kiệm lên đến 15% khi đặt cả hai cùng lúc</p>
-          </div>
+        <div className="bg-gradient-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-12 pb-24 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+            <div className="max-w-6xl mx-auto relative z-10 animate-fade-in-up">
+                <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">{t('flightAndHotel.heroTitle')}</h1>
+                <p className="text-xl md:text-2xl text-blue-100 font-medium drop-shadow-sm">{t('flightAndHotel.heroSubtitle')}</p>
+            </div>
         </div>
 
         {/* Search Bar kết hợp */}
-        <div className="search-box-container">
-          <div className="search-box">
+        <div className="max-w-6xl mx-auto px-4 w-full relative z-20 -mt-12">
+          <div className="bg-yellow-400 p-1.5 md:p-2 rounded-2xl shadow-xl transition-shadow hover:shadow-2xl">
+            <div className="bg-white rounded-xl overflow-hidden p-4 shadow-inner">
             
             <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
               {/* Điểm đi */}
               <div className="md:col-span-3 border rounded-lg p-2 flex items-center gap-2 bg-white">
                 <FlightTakeoffIcon className="text-blue-500" />
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase">Điểm đi</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase">{t('flightAndHotel.origin')}</span>
                   <Select 
                     showSearch 
-                    placeholder="Hà Nội (HAN)" 
+                    placeholder={t('flightAndHotel.originPlaceholder')} 
                     variant="borderless" 
                     className="w-full"
                     onChange={(val) => setDepartureCode(val)}
@@ -86,10 +90,10 @@ const FlightAndHotel = () => {
               <div className="md:col-span-3 border rounded-lg p-2 flex items-center gap-2 bg-white">
                 <HotelIcon className="text-blue-500" />
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase">Điểm đến / Khách sạn</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase">{t('flightAndHotel.destination')}</span>
                   <Select 
                     showSearch 
-                    placeholder="Đà Nẵng" 
+                    placeholder={t('flightAndHotel.destPlaceholder')} 
                     variant="borderless" 
                     className="w-full"
                     onChange={(val) => setDestination(val)}
@@ -100,7 +104,7 @@ const FlightAndHotel = () => {
 
               {/* Lịch trình */}
               <div className="md:col-span-4 border rounded-lg p-2 bg-white">
-                <span className="text-[10px] font-bold text-gray-400 uppercase px-3">Thời gian đi & về</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase px-3">{t('flightAndHotel.dateRange')}</span>
                 <RangePicker disabledDate={disabledDate} variant="borderless" className="w-full" />
               </div>
 
@@ -108,7 +112,7 @@ const FlightAndHotel = () => {
               <div className="md:col-span-2 border rounded-lg p-2 flex items-center gap-2 bg-white">
                 <GroupIcon className="text-gray-400" />
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase">Khách</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase">{t('flightAndHotel.guests')}</span>
                   <InputNumber min={1} defaultValue={2} variant="borderless" className="w-full" />
                 </div>
               </div>
@@ -129,8 +133,9 @@ const FlightAndHotel = () => {
                   borderRadius: '4px'
                 }}
               >
-                {searching ? 'Đang tìm...' : 'Tìm kiếm gói tiết kiệm'}
+                {searching ? t('flightAndHotel.searching') : t('flightAndHotel.search')}
               </Button>
+            </div>
             </div>
           </div>
         </div>
@@ -138,8 +143,8 @@ const FlightAndHotel = () => {
         {/* Search Results Mockup */}
         {searching && (
           <div className="section-container mt-8 text-center py-10">
-            <h2 className="text-2xl font-bold mb-4">Kết quả tìm kiếm gói trọn gói</h2>
-            <p className="text-gray-500 italic">(Đang cập nhật danh sách các gói bay + ở phù hợp cho bạn...)</p>
+            <h2 className="text-2xl font-bold mb-4">{t('flightAndHotel.searchResults')}</h2>
+            <p className="text-gray-500 italic">{t('flightAndHotel.searchDesc')}</p>
           </div>
         )}
 
@@ -148,11 +153,11 @@ const FlightAndHotel = () => {
           <div className="section-container mt-12 mb-20">
               <div className="bg-blue-50 border border-blue-100 rounded-lg p-6 flex items-center justify-between">
                   <div>
-                      <h3 className="text-lg font-bold text-blue-900">Tại sao nên đặt theo gói?</h3>
+                      <h3 className="text-lg font-bold text-blue-900">{t('flightAndHotel.whyBookLabel')}</h3>
                       <ul className="mt-2 text-blue-800 list-disc list-inside space-y-1">
-                          <li>Giá rẻ hơn so với đặt lẻ từng dịch vụ</li>
-                          <li>Quản lý chuyến đi dễ dàng tại một nơi</li>
-                          <li>Đã bao gồm bảo hiểm hành trình cơ bản</li>
+                          <li>{t('flightAndHotel.whyBook1')}</li>
+                          <li>{t('flightAndHotel.whyBook2')}</li>
+                          <li>{t('flightAndHotel.whyBook3')}</li>
                       </ul>
                   </div>
                   <div className="hidden md:block text-6xl opacity-20 text-blue-900">

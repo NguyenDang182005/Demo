@@ -6,10 +6,12 @@ import axios from 'axios';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import DetailOverlay from '../components/DetailOverlay';
+import { useTranslation } from 'react-i18next';
 
 const { RangePicker } = DatePicker;
 
 const CarRental = () => {
+  const { t } = useTranslation();
   const [differentLocation, setDifferentLocation] = useState(false);
   const [pickupCity, setPickupCity] = useState(null);
   const [pickupDatetime, setPickupDatetime] = useState(null);
@@ -37,7 +39,7 @@ const CarRental = () => {
 
   const handleSearch = async () => {
     if (!pickupCity || !pickupDatetime) {
-      alert("Vui lòng chọn địa điểm nhận và ngày giờ");
+      alert(t('common.pleaseSelectPickupInfo') || "Vui lòng chọn địa điểm nhận và ngày giờ");
       return;
     }
     setLoading(true);
@@ -64,23 +66,25 @@ const CarRental = () => {
       <div className="w-full flex flex-col items-center bg-gray-50 min-h-screen text-black">
 
         {/* Banner */}
-        <div className="search-banner">
-          <div className="section-container">
-            <h1 className="text-4xl font-bold mb-3">Thuê xe cho mọi loại hành trình</h1>
-            <p className="text-xl opacity-90">Ưu đãi cực lớn từ các thương hiệu hàng đầu thế giới</p>
-          </div>
+        <div className="bg-gradient-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-12 pb-24 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+            <div className="max-w-6xl mx-auto relative z-10 animate-fade-in-up">
+                <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">{t('carRental.heroTitle')}</h1>
+                <p className="text-xl md:text-2xl text-blue-100 font-medium drop-shadow-sm">{t('carRental.heroSubtitle')}</p>
+            </div>
         </div>
 
         {/* Search Bar */}
-        <div className="search-box-container">
-          <div className="search-box">
+        <div className="max-w-6xl mx-auto px-4 w-full relative z-20 -mt-12">
+          <div className="bg-yellow-400 p-1.5 md:p-2 rounded-2xl shadow-xl transition-shadow hover:shadow-2xl">
+            <div className="bg-white rounded-xl overflow-hidden p-4 shadow-inner">
 
             <div className="mb-2">
               <Checkbox
                 onChange={(e) => setDifferentLocation(e.target.checked)}
                 className="font-medium text-black"
               >
-                Trả xe tại địa điểm khác
+                {t('carRental.differentLocation')}
               </Checkbox>
             </div>
 
@@ -89,10 +93,10 @@ const CarRental = () => {
               <div className={`border rounded-lg p-2 flex items-center gap-2 bg-white ${differentLocation ? 'md:col-span-3' : 'md:col-span-5'}`}>
                 <LocationOnIcon className="text-gray-400" />
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-500 uppercase">Địa điểm nhận xe</span>
+                  <span className="text-[10px] font-bold text-gray-500 uppercase">{t('carRental.pickupLocation')}</span>
                   <Select
                     showSearch
-                    placeholder="Sân bay, thành phố..."
+                    placeholder={t('carRental.pickupPlaceholder')}
                     variant="borderless"
                     className="w-full"
                     onChange={(val) => setPickupCity(val)}
@@ -107,10 +111,10 @@ const CarRental = () => {
                 <div className="md:col-span-3 border rounded-lg p-2 flex items-center gap-2 bg-white transition-all">
                   <LocationOnIcon className="text-red-500" />
                   <div className="flex flex-col w-full">
-                    <span className="text-[10px] font-bold text-gray-500 uppercase">Địa điểm trả xe</span>
+                    <span className="text-[10px] font-bold text-gray-500 uppercase">{t('carRental.dropoffLocation')}</span>
                     <Select 
                       showSearch
-                      placeholder="Địa điểm trả..." 
+                      placeholder={t('carRental.dropoffPlaceholder')} 
                       variant="borderless" 
                       className="w-full" 
                       filterOption={(input, option) => (option?.value ?? '').toLowerCase().includes(input.toLowerCase())}
@@ -122,7 +126,7 @@ const CarRental = () => {
 
               {/* Lịch trình */}
               <div className={`${differentLocation ? 'md:col-span-4' : 'md:col-span-5'} border rounded-lg p-2 bg-white`}>
-                <span className="text-[10px] font-bold text-gray-500 uppercase px-3">Ngày nhận & trả</span>
+                <span className="text-[10px] font-bold text-gray-500 uppercase px-3">{t('carRental.dateRange')}</span>
                 <RangePicker
                   disabledDate={disabledDate}
                   variant="borderless"
@@ -148,9 +152,10 @@ const CarRental = () => {
                     textTransform: 'none'
                   }}
                 >
-                  {loading ? 'Đang tìm...' : 'Tìm kiếm'}
+                  {loading ? t('carRental.searching') : t('carRental.search')}
                 </Button>
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -158,61 +163,61 @@ const CarRental = () => {
         {/* Search Results */}
         {results.length > 0 && (
           <div className="section-container mt-8">
-            <h2 className="text-2xl font-bold mb-6">Kết quả tìm kiếm xe tốt nhất</h2>
+            <h2 className="text-2xl font-bold mb-6">{t('carRental.searchResults')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {results.map((car) => (
                 <div key={car.id} className="result-card flex flex-col justify-between">
                   <div>
                     <h3 className="font-bold text-xl text-booking-blue mb-1">{car.companyName}</h3>
                     <p className="text-lg font-semibold">{car.carModel}</p>
-                    <p className="text-sm text-gray-500 mb-3"><DirectionsCarIcon fontSize="small" /> {car.seats} chỗ ngồi</p>
+                    <p className="text-sm text-gray-500 mb-3"><DirectionsCarIcon fontSize="small" /> {car.seats} {t('carRental.seats')}</p>
                     <div className="text-sm bg-blue-50 text-blue-800 p-2 rounded mb-3">
-                      <span className="font-bold">Vị trí:</span> {car.location?.name}, {car.location?.city}
+                      <span className="font-bold">{t('carRental.locationLabel')}</span> {car.location?.name}, {car.location?.city}
                     </div>
                   </div>
                   <div className="flex justify-between items-end mt-4">
-                    <span className="text-xl font-bold text-red-600">{car.pricePerDay.toLocaleString('vi-VN')} đ <span className="text-sm text-gray-500 font-normal">/ ngày</span></span>
+                    <span className="text-xl font-bold text-red-600">{car.pricePerDay.toLocaleString('vi-VN')} đ <span className="text-sm text-gray-500 font-normal">{t('carRental.perDay')}</span></span>
                     <DetailOverlay 
-                      trigger={<Button variant="contained" sx={{ backgroundColor: '#006ce4', fontWeight: 'bold' }}>Thuê ngay</Button>}
-                      title={`Chi tiết xe ${car.carModel}`}
-                      description={`Cung cấp bởi đối tác ${car.companyName}`}
+                      trigger={<Button variant="contained" sx={{ backgroundColor: '#006ce4', fontWeight: 'bold' }}>{t('carRental.rentNow')}</Button>}
+                      title={`${t('carRental.carDetails')} ${car.carModel}`}
+                      description={`${t('carRental.providedBy')} ${car.companyName}`}
                       content={
                         <div className="space-y-4">
                           <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
                             <div>
-                              <p className="text-sm text-gray-500">Mẫu xe</p>
+                              <p className="text-sm text-gray-500">{t('carRental.carModel')}</p>
                               <p className="text-lg font-bold">{car.carModel}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-sm text-gray-500">Số chỗ</p>
-                              <p className="text-lg font-bold">{car.seats} chỗ</p>
+                              <p className="text-sm text-gray-500">{t('carRental.numberOfSeats')}</p>
+                              <p className="text-lg font-bold">{car.seats} {t('carRental.numberOfSeats')}</p>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div className="border p-2 rounded">
-                              <p className="font-semibold"><i className="fa-solid fa-gas-pump mr-2 text-blue-500"></i> Nhiên liệu</p>
-                              <p className="text-gray-600">Xăng / Full-to-Full</p>
+                              <p className="font-semibold"><i className="fa-solid fa-gas-pump mr-2 text-blue-500"></i> {t('carRental.fuel')}</p>
+                              <p className="text-gray-600">{t('carRental.fuelDesc')}</p>
                             </div>
                             <div className="border p-2 rounded">
-                              <p className="font-semibold"><i className="fa-solid fa-gear mr-2 text-blue-500"></i> Hộp số</p>
-                              <p className="text-gray-600">Tự động</p>
+                              <p className="font-semibold"><i className="fa-solid fa-gear mr-2 text-blue-500"></i> {t('carRental.transmission')}</p>
+                              <p className="text-gray-600">{t('carRental.transmissionDesc')}</p>
                             </div>
                             <div className="border p-2 rounded">
-                              <p className="font-semibold"><i className="fa-solid fa-snowflake mr-2 text-blue-500"></i> Điều hòa</p>
-                              <p className="text-gray-600">Có sẵn</p>
+                              <p className="font-semibold"><i className="fa-solid fa-snowflake mr-2 text-blue-500"></i> {t('carRental.ac')}</p>
+                              <p className="text-gray-600">{t('carRental.acDesc')}</p>
                             </div>
                             <div className="border p-2 rounded">
-                              <p className="font-semibold"><i className="fa-solid fa-suitcase mr-2 text-blue-500"></i> Hành lý</p>
-                              <p className="text-gray-600">2 Vali lớn, 1 Vali nhỏ</p>
+                              <p className="font-semibold"><i className="fa-solid fa-suitcase mr-2 text-blue-500"></i> {t('carRental.luggage')}</p>
+                              <p className="text-gray-600">{t('carRental.luggageDesc')}</p>
                             </div>
                           </div>
                           <div className="bg-yellow-50 p-3 rounded border border-yellow-100 italic text-xs">
-                            * Lưu ý: Người lái cần mang theo bằng lái xe hợp lệ và căn cước công dân khi nhận xe.
+                            {t('carRental.driverNote')}
                           </div>
                         </div>
                       }
                       footer={
-                        <Button variant="contained" sx={{ backgroundColor: '#006ce4' }}>Tiếp tục đặt xe</Button>
+                        <Button variant="contained" sx={{ backgroundColor: '#006ce4' }}>{t('carRental.continueBooking')}</Button>
                       }
                     />
                   </div>
@@ -227,18 +232,18 @@ const CarRental = () => {
           <div className="section-container mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 text-black">
             <div className="flex flex-col items-center text-center p-4">
               <span className="text-4xl mb-2">✔️</span>
-              <h3 className="font-bold text-lg">Hủy miễn phí</h3>
-              <p className="text-gray-500 text-sm">Hầu hết các đơn đặt xe đều có thể hủy trước 48 giờ</p>
+              <h3 className="font-bold text-lg">{t('carRental.freeCancellation')}</h3>
+              <p className="text-gray-500 text-sm">{t('carRental.freeCancellationDesc')}</p>
             </div>
             <div className="flex flex-col items-center text-center p-4">
               <span className="text-4xl mb-2">🏢</span>
-              <h3 className="font-bold text-lg">Hơn 900 công ty</h3>
-              <p className="text-gray-500 text-sm">Kết nối với các đối tác uy tín như Hertz, Avis, Europcar</p>
+              <h3 className="font-bold text-lg">{t('carRental.manyCompanies')}</h3>
+              <p className="text-gray-500 text-sm">{t('carRental.manyCompaniesDesc')}</p>
             </div>
             <div className="flex flex-col items-center text-center p-4">
               <span className="text-4xl mb-2">✨</span>
-              <h3 className="font-bold text-lg">Không phí ẩn</h3>
-              <p className="text-gray-500 text-sm">Giá hiển thị là giá cuối cùng bạn phải trả</p>
+              <h3 className="font-bold text-lg">{t('carRental.noHiddenFees')}</h3>
+              <p className="text-gray-500 text-sm">{t('carRental.noHiddenFeesDesc')}</p>
             </div>
           </div>
         )}

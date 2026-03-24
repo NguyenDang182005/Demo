@@ -4,10 +4,12 @@ import { DatePicker, Input, ConfigProvider, AutoComplete } from 'antd';
 import { Button } from '@mui/material';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 const { RangePicker } = DatePicker;
 
 const Attractions = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [city, setCity] = useState('');
     const [dates, setDates] = useState(null);
@@ -33,7 +35,7 @@ const Attractions = () => {
     const handleSearch = async (cityName) => {
         const searchCity = typeof cityName === 'string' ? cityName : city;
         if (!searchCity) {
-            alert("Vui lòng nhập thành phố bạn muốn đến");
+            alert(t('common.pleaseSelectCity') || "Vui lòng nhập thành phố bạn muốn đến");
             return;
         }
         setLoading(true);
@@ -54,27 +56,29 @@ const Attractions = () => {
             <div className="w-full flex flex-col items-center bg-gray-50 min-h-screen text-black">
 
                 {/* Banner */}
-                <div className="search-banner">
-                    <div className="section-container">
-                        <h1 className="text-4xl font-bold mb-3">Địa điểm tham quan, hoạt động và trải nghiệm</h1>
-                        <p className="text-xl opacity-90">Khám phá những điều tuyệt vời nhất tại điểm đến của bạn</p>
-                    </div>
-                </div>
+        <div className="bg-gradient-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-12 pb-24 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+            <div className="max-w-6xl mx-auto relative z-10 animate-fade-in-up">
+                <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">{t('attractions.heroTitle')}</h1>
+                <p className="text-xl md:text-2xl text-blue-100 font-medium drop-shadow-sm">{t('attractions.heroSubtitle')}</p>
+            </div>
+        </div>
 
         {/* Search Bar */}
-        <div className="search-box-container">
-          <div className="search-box grid grid-cols-1 md:grid-cols-12 gap-3">
+        <div className="max-w-6xl mx-auto px-4 w-full relative z-20 -mt-12">
+          <div className="bg-yellow-400 p-1.5 md:p-2 rounded-2xl shadow-xl transition-shadow hover:shadow-2xl">
+            <div className="bg-white rounded-xl overflow-hidden p-4 shadow-inner grid grid-cols-1 md:grid-cols-12 gap-3">
             {/* Địa điểm */}
             <div className="md:col-span-5 border rounded-lg p-2 flex items-center gap-2 bg-white">
               <i className="fa-solid fa-location-dot text-gray-400 ml-2"></i>
               <div className="flex flex-col w-full">
-                <span className="text-[10px] font-bold text-gray-500 uppercase">Bạn muốn đi đâu?</span>
+                <span className="text-[10px] font-bold text-gray-500 uppercase">{t('attractions.destination')}</span>
                 <AutoComplete
                   options={cities.map(city => ({ value: city }))}
                   filterOption={(inputValue, option) =>
                       option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
                   }
-                  placeholder="Thành phố, điểm tham quan..."
+                  placeholder={t('attractions.destPlaceholder')}
                   variant="borderless"
                   className="w-full"
                   value={city}
@@ -92,12 +96,12 @@ const Attractions = () => {
               </div>
             </div>
             <div className="md:col-span-4 border rounded-lg p-2 bg-white">
-              <span className="text-[10px] font-bold text-gray-500 uppercase px-3">Thời gian</span>
+              <span className="text-[10px] font-bold text-gray-500 uppercase px-3">{t('attractions.dateRange')}</span>
               <RangePicker
                 disabledDate={disabledDate}
                 variant="borderless"
                 className="w-full"
-                placeholder={['Từ ngày', 'Đến ngày']}
+                placeholder={[t('common.dateStart') || 'Từ ngày', t('common.dateEnd') || 'Đến ngày']}
               />
             </div>
             <div className="md:col-span-3">
@@ -115,27 +119,28 @@ const Attractions = () => {
                   borderRadius: '4px'
                 }}
               >
-                {loading ? 'Đang tìm...' : 'Tìm kiếm'}
+                {loading ? t('attractions.searching') : t('attractions.search')}
               </Button>
+            </div>
             </div>
           </div>
         </div>
 
                 {/* Danh sách địa điểm */}
                 <div className="section-container mt-16 mb-20">
-                    <h2 className="text-2xl font-bold mb-6 text-gray-800">Các điểm tham quan nổi bật tại Việt Nam</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-gray-800">{t('attractions.popularAttractions')}</h2>
                     
                     <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                         
-                        {/* Vịnh Hạ Long - Gọi hàm và truyền trực tiếp tên */}
+                        {/* Vịnh Hạ Long */}
                         <div 
                             onClick={() => handleSearch('Hạ Long')}
                             className="col-span-1 md:col-span-3 rounded-xl overflow-hidden relative cursor-pointer group h-64 shadow-md"
                         >
                             <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800" alt="Hạ Long" className="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-white">
-                                <h3 className="font-bold text-2xl">Vịnh Hạ Long</h3>
-                                <p className="text-sm opacity-90">Kỳ quan thiên nhiên thế giới</p>
+                                <h3 className="font-bold text-2xl">{t('attractions.halong')}</h3>
+                                <p className="text-sm opacity-90">{t('attractions.halongDesc')}</p>
                             </div>
                         </div>
 
@@ -146,8 +151,8 @@ const Attractions = () => {
                         >
                             <img src="https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=800" alt="Hội An" className="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-white">
-                                <h3 className="font-bold text-2xl">Phố Cổ Hội An</h3>
-                                <p className="text-sm opacity-90">Di sản văn hóa UNESCO</p>
+                                <h3 className="font-bold text-2xl">{t('attractions.hoian')}</h3>
+                                <p className="text-sm opacity-90">{t('attractions.hoianDesc')}</p>
                             </div>
                         </div>
 
@@ -158,7 +163,7 @@ const Attractions = () => {
                         >
                             <img src="https://images.unsplash.com/photo-1599708153386-62e200ec806f?w=800" className="w-full h-full object-cover transition duration-300 group-hover:scale-105" alt="Huế" />
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-white">
-                                <h3 className="font-bold text-xl">Cố Đô Huế</h3>
+                                <h3 className="font-bold text-xl">{t('attractions.hue')}</h3>
                             </div>
                         </div>
 
@@ -169,7 +174,7 @@ const Attractions = () => {
                         >
                             <img src="https://images.unsplash.com/photo-1537956965359-7573183d1f57?w=800" className="w-full h-full object-cover transition duration-300 group-hover:scale-105" alt="Phú Quốc" />
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-white">
-                                <h3 className="font-bold text-xl">Đảo Phú Quốc</h3>
+                                <h3 className="font-bold text-xl">{t('attractions.phuquoc')}</h3>
                             </div>
                         </div>
 
@@ -180,14 +185,14 @@ const Attractions = () => {
                         >
                             <img src="https://images.unsplash.com/photo-1559592443-7f87a79f6527?w=800" className="w-full h-full object-cover transition duration-300 group-hover:scale-105" alt="Đà Nẵng" />
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-white">
-                                <h3 className="font-bold text-xl">Đà Nẵng</h3>
+                                <h3 className="font-bold text-xl">{t('attractions.danang')}</h3>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div className="section-container text-center pb-20">
-                    <p className="text-gray-400 italic">Chọn một điểm đến để khám phá các hoạt động thú vị.</p>
+                    <p className="text-gray-400 italic">{t('attractions.instruction')}</p>
                 </div>
             </div>
         </ConfigProvider>
