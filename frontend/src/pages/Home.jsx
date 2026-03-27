@@ -101,15 +101,15 @@ const Home = () => {
                                 value={destination}
                                 onChange={(val) => setDestination(val)}
                                 variant="borderless"
-                                className="w-full font-semibold custom-home-autocomplete text-lg"
+                                className="w-full font-medium custom-home-autocomplete text-base"
                             />
                         </div>
 
                         {/* Ngày tháng */}
                         <div className="flex-1 flex items-center p-2.5 md:p-3 hover:bg-gray-50 transition-colors">
-                            <ConfigProvider theme={{ token: { colorPrimary: '#003b95', borderRadius: 8 } }}>
+                            <ConfigProvider theme={{ token: { colorPrimary: '#003b95', borderRadius: 8, fontFamily: "'Inter', sans-serif" } }}>
                                 <RangePicker 
-                                    className="w-full font-semibold text-lg cursor-pointer" 
+                                    className="w-full font-medium text-base cursor-pointer" 
                                     placeholder={[t('home.searchDateCheckIn'), t('home.searchDateCheckOut')]}
                                     onChange={(val) => setDates(val)}
                                     variant="borderless"
@@ -122,7 +122,7 @@ const Home = () => {
                         <Popover content={content} title={<span className="font-bold text-gray-800 text-lg">{t('home.searchGuests')}</span>} trigger="click" placement="bottom">
                             <div className="flex-1 flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors">
                                 <i className="fa-regular fa-user text-gray-400 mr-3 text-xl"></i>
-                                <span className="text-gray-700 font-semibold text-lg truncate flex-1">
+                                <span className="text-gray-700 font-medium text-base truncate flex-1">
                                     {options.adult} {t('home.searchAdults')} · {options.children} {t('home.searchChildren')} · {options.room} {t('home.searchRooms')}
                                 </span>
                                 <i className="fa-solid fa-chevron-down text-gray-400 text-sm ml-2"></i>
@@ -152,7 +152,7 @@ const Home = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* HCMC Card */}
                     <div 
-                        onClick={() => navigate('/search-results')}
+                        onClick={() => navigate('/search-results?city=Hồ Chí Minh')}
                         className="rounded-2xl overflow-hidden relative h-72 cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-300"
                     >
                         {/* Reliable image source with gradient fallback */}
@@ -178,7 +178,7 @@ const Home = () => {
 
                     {/* Da Lat Card */}
                     <div 
-                        onClick={() => navigate('/search-results')}
+                        onClick={() => navigate('/search-results?city=Đà Lạt')}
                         className="rounded-2xl overflow-hidden relative h-72 cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-300"
                     >
                         <div className="absolute inset-0 bg-gradient-to-tr from-green-800 to-green-500">

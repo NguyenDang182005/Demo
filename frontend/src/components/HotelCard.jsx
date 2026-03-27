@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import DetailOverlay from './DetailOverlay';
 
 const HotelCard = ({ hotel }) => {
+    const navigate = useNavigate();
     return (
         <div className="border border-gray-300 rounded-lg p-4 flex flex-col md:flex-row gap-4 hover:shadow-md transition-shadow bg-white">
             {/* Ảnh bên trái */}
@@ -87,7 +89,10 @@ const HotelCard = ({ hotel }) => {
                         footer={
                             <div className="flex flex-col items-end">
                                 <p className="text-xl font-bold text-gray-900 mb-1">VND {hotel.price}</p>
-                                <button className="bg-[#006ce4] text-white px-8 py-2 rounded-md font-bold">Đặt ngay</button>
+                                <button
+                                  onClick={() => navigate(`/checkout?type=hotel&name=${encodeURIComponent(hotel.name)}&price=${String(hotel.price).replace(/[^0-9]/g, '') || 0}&details=${encodeURIComponent(JSON.stringify({ 'Địa chỉ': hotel.location, 'Đánh giá': hotel.rating }))}`)}
+                                  className="bg-[#006ce4] text-white px-8 py-2 rounded-md font-bold hover:bg-[#003b95] transition"
+                                >Đặt ngay</button>
                             </div>
                         }
                     />

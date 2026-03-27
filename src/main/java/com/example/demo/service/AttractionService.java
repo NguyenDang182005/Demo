@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AttractionService {
@@ -14,9 +13,7 @@ public class AttractionService {
     private AttractionRepository attractionRepository;
 
     public List<Attraction> searchAttractions(String city, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
-        return attractionRepository.findAll().stream()
-                 .filter(a -> a.getCity().equalsIgnoreCase(city))
-                 .collect(Collectors.toList());
+        return attractionRepository.findByCityContainingIgnoreCase(city);
     }
     
     public List<Attraction> getAllAttractions() {
@@ -27,3 +24,4 @@ public class AttractionService {
         return attractionRepository.findDistinctCities();
     }
 }
+

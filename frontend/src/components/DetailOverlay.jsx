@@ -4,11 +4,11 @@ import { Dialog, Button, Flex, Text } from '@radix-ui/themes';
 const DetailOverlay = ({ trigger, title, description, content, footer }) => {
   return (
     <Dialog.Root>
-      <Dialog.Trigger>
+      <Dialog.Trigger asChild>
         {trigger}
       </Dialog.Trigger>
 
-      <Dialog.Content maxWidth="650px">
+      <Dialog.Content maxWidth="800px">
         <Dialog.Title>{title}</Dialog.Title>
         <Dialog.Description size="2" mb="4">
           {description}
@@ -19,7 +19,7 @@ const DetailOverlay = ({ trigger, title, description, content, footer }) => {
         </div>
 
         <Flex gap="3" mt="4" justify="end">
-          <Dialog.Close>
+          <Dialog.Close asChild>
             <Button variant="soft" color="gray">
               Đóng
             </Button>

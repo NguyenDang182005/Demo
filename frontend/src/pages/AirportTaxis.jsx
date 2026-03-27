@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { DatePicker, Input, TimePicker, ConfigProvider, Select, AutoComplete } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { DatePicker, Input, TimePicker, ConfigProvider, Select, AutoComplete, message } from 'antd';
 import { Button } from '@mui/material';
 import dayjs from 'dayjs';
 import axios from 'axios';
@@ -8,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 const AirportTaxis = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const disabledDate = (current) => current && current < dayjs().startOf('day');
 
   const [airportCode, setAirportCode] = useState('');
@@ -42,7 +44,7 @@ const AirportTaxis = () => {
 
   const handleSearch = async () => {
     if (!airportCode) {
-      alert(t('common.pleaseSelectAirport') || "Vui lòng nhập sân bay hoặc mã sân bay");
+      message.warning(t('common.pleaseSelectAirport') || "Vui lòng nhập sân bay hoặc mã sân bay");
       return;
     }
     setLoading(true);
@@ -64,7 +66,12 @@ const AirportTaxis = () => {
   };
 
   return (
-    <ConfigProvider theme={{ token: { colorPrimary: '#003b95' } }}>
+    <ConfigProvider theme={{ 
+      token: { 
+        colorPrimary: '#003b95', 
+        fontFamily: "'Inter', sans-serif" 
+      } 
+    }}>
       <div className="w-full flex flex-col items-center bg-gray-50 min-h-screen">
 
         {/* Banner */}
@@ -86,12 +93,12 @@ const AirportTaxis = () => {
               <div className="md:col-span-4 border rounded-lg p-2 flex items-center gap-2 bg-white">
                 <i className="fa-solid fa-plane-arrival text-gray-400 ml-2"></i>
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-500 uppercase">{t('airportTaxis.pickupLocation')}</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase line-clamp-1">{t('airportTaxis.pickupLocation')}</span>
                   <Select
                     showSearch
                     placeholder={t('airportTaxis.pickupPlaceholder')}
                     variant="borderless"
-                    className="w-full"
+                    className="w-full text-sm"
                     value={airportCode || undefined}
                     onChange={(val) => setAirportCode(val)}
                     filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
@@ -104,7 +111,7 @@ const AirportTaxis = () => {
               <div className="md:col-span-4 border rounded-lg p-2 flex items-center gap-2 bg-white">
                 <i className="fa-solid fa-location-dot text-gray-400 ml-2"></i>
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-500 uppercase">{t('airportTaxis.destination')}</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase line-clamp-1">{t('airportTaxis.destination')}</span>
                   <AutoComplete
                     options={cities.map(city => ({ value: city }))}
                     filterOption={(inputValue, option) =>
@@ -112,7 +119,7 @@ const AirportTaxis = () => {
                     }
                     placeholder={t('airportTaxis.destPlaceholder')}
                     variant="borderless"
-                    className="w-full custom-home-autocomplete"
+                    className="w-full text-sm custom-home-autocomplete"
                     value={destination}
                     onChange={(val) => setDestination(val)}
                   />
@@ -121,13 +128,13 @@ const AirportTaxis = () => {
 
               {/* Ngày và Giờ */}
               <div className="md:col-span-2 border rounded-lg p-2 bg-white">
-                <span className="text-[10px] font-bold text-gray-500 uppercase px-3">{t('airportTaxis.pickupDate')}</span>
-                <DatePicker disabledDate={disabledDate} variant="borderless" className="w-full" onChange={(d) => setDate(d)} />
+                <span className="text-[10px] font-bold text-gray-400 uppercase px-3 line-clamp-1">{t('airportTaxis.pickupDate')}</span>
+                <DatePicker disabledDate={disabledDate} variant="borderless" className="w-full text-sm" onChange={(d) => setDate(d)} />
               </div>
 
               <div className="md:col-span-2 border rounded-lg p-2 bg-white">
-                <span className="text-[10px] font-bold text-gray-500 uppercase px-3">{t('airportTaxis.pickupTime')}</span>
-                <TimePicker format="HH:mm" variant="borderless" className="w-full" onChange={(t) => setTime(t)} />
+                <span className="text-[10px] font-bold text-gray-400 uppercase px-3 line-clamp-1">{t('airportTaxis.pickupTime')}</span>
+                <TimePicker format="HH:mm" variant="borderless" className="w-full text-sm" onChange={(t) => setTime(t)} />
               </div>
             </div>
 
@@ -207,7 +214,11 @@ const AirportTaxis = () => {
                         </div>
                       }
                       footer={
-                        <Button variant="contained" sx={{ backgroundColor: '#006ce4' }}>{t('airportTaxis.confirmBooking')}</Button>
+                        <Button
+                          variant="contained"
+                          sx={{ backgroundColor: '#006ce4' }}
+                          onClick={() => navigate(`/checkout?type=taxi&name=${encodeURIComponent(taxi.carType)}&price=${taxi.basePrice}&details=${encodeURIComponent(JSON.stringify({ [t('airportTaxis.pickupPoint')]: taxi.airport?.name + ' (' + taxi.airport?.code + ')', [t('airportTaxis.city')]: taxi.airport?.city }))}`)}
+                        >{t('airportTaxis.confirmBooking')}</Button>
                       }
                     />
                   </div>

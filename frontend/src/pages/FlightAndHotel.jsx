@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { DatePicker, Select, InputNumber, ConfigProvider } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { DatePicker, Select, InputNumber, ConfigProvider, message } from 'antd';
 import { Button } from '@mui/material';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import HotelIcon from '@mui/icons-material/Hotel';
 import GroupIcon from '@mui/icons-material/Group';
+import DetailOverlay from '../components/DetailOverlay';
 import { useTranslation } from 'react-i18next';
 
 const { RangePicker } = DatePicker;
 
 const FlightAndHotel = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const disabledDate = (current) => current && current < dayjs().startOf('day');
 
   const [airports, setAirports] = useState([]);
@@ -41,18 +44,56 @@ const FlightAndHotel = () => {
   }, []);
 
   const [searching, setSearching] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState([]);
+
+  // Mock data cho packages
+  const generateMockPackages = (origin, dest) => {
+    const originAirport = airports.find(a => a.code === origin);
+    const originCity = originAirport ? originAirport.city : origin;
+    const airlines = ['Vietnam Airlines', 'VietJet Air', 'Bamboo Airways'];
+    const hotels = [
+      { name: `${dest} Grand Hotel`, stars: 5, img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500' },
+      { name: `${dest} Boutique Resort`, stars: 4, img: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=500' },
+      { name: `${dest} City Center Hotel`, stars: 4, img: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=500' },
+    ];
+    return hotels.map((hotel, i) => ({
+      id: i + 1,
+      airline: airlines[i % airlines.length],
+      flightCode: `${origin}-${dest.substring(0, 3).toUpperCase()}`,
+      originCity,
+      destCity: dest,
+      hotel: hotel.name,
+      hotelStars: hotel.stars,
+      hotelImg: hotel.img,
+      nights: 3,
+      originalPrice: 8500000 + i * 1200000,
+      packagePrice: 6800000 + i * 1000000,
+      savings: 15 - i * 2,
+    }));
+  };
 
   const handleSearch = () => {
     if (!departureCode || !destination) {
-      alert(t('common.pleaseSelectOriginDest') || "Vui lòng chọn điểm đi và điểm đến");
+      message.warning(t('common.pleaseSelectOriginDest') || "Vui lòng chọn điểm đi và điểm đến");
       return;
     }
+    setLoading(true);
     setSearching(true);
-    // Logic tìm kiếm thực tế sẽ được thêm sau
+    // Simulate API call
+    setTimeout(() => {
+      setResults(generateMockPackages(departureCode, destination));
+      setLoading(false);
+    }, 1000);
   };
 
   return (
-    <ConfigProvider theme={{ token: { colorPrimary: '#003b95' } }}>
+    <ConfigProvider theme={{ 
+      token: { 
+        colorPrimary: '#003b95', 
+        fontFamily: "'Inter', sans-serif" 
+      } 
+    }}>
       <div className="w-full flex flex-col items-center bg-gray-50 min-h-screen">
         
         {/* Banner Đặc trưng cho Packages */}
@@ -74,12 +115,12 @@ const FlightAndHotel = () => {
               <div className="md:col-span-3 border rounded-lg p-2 flex items-center gap-2 bg-white">
                 <FlightTakeoffIcon className="text-blue-500" />
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase">{t('flightAndHotel.origin')}</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase line-clamp-1">{t('flightAndHotel.origin')}</span>
                   <Select 
                     showSearch 
                     placeholder={t('flightAndHotel.originPlaceholder')} 
                     variant="borderless" 
-                    className="w-full"
+                    className="w-full text-sm"
                     onChange={(val) => setDepartureCode(val)}
                     filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
                     options={airports.map(a => ({ value: a.code, label: `${a.city} (${a.code})` }))} />
@@ -90,12 +131,12 @@ const FlightAndHotel = () => {
               <div className="md:col-span-3 border rounded-lg p-2 flex items-center gap-2 bg-white">
                 <HotelIcon className="text-blue-500" />
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase">{t('flightAndHotel.destination')}</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase line-clamp-1">{t('flightAndHotel.destination')}</span>
                   <Select 
                     showSearch 
                     placeholder={t('flightAndHotel.destPlaceholder')} 
                     variant="borderless" 
-                    className="w-full"
+                    className="w-full text-sm"
                     onChange={(val) => setDestination(val)}
                     filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
                     options={cities.map(city => ({ value: city, label: city }))} />
@@ -104,8 +145,8 @@ const FlightAndHotel = () => {
 
               {/* Lịch trình */}
               <div className="md:col-span-4 border rounded-lg p-2 bg-white">
-                <span className="text-[10px] font-bold text-gray-400 uppercase px-3">{t('flightAndHotel.dateRange')}</span>
-                <RangePicker disabledDate={disabledDate} variant="borderless" className="w-full" />
+                <span className="text-[10px] font-bold text-gray-400 uppercase px-3 line-clamp-1">{t('flightAndHotel.dateRange')}</span>
+                <RangePicker disabledDate={disabledDate} variant="borderless" className="w-full text-sm" />
               </div>
 
               {/* Số người */}
@@ -140,11 +181,136 @@ const FlightAndHotel = () => {
           </div>
         </div>
 
-        {/* Search Results Mockup */}
+        {/* Search Results */}
         {searching && (
-          <div className="section-container mt-8 text-center py-10">
-            <h2 className="text-2xl font-bold mb-4">{t('flightAndHotel.searchResults')}</h2>
-            <p className="text-gray-500 italic">{t('flightAndHotel.searchDesc')}</p>
+          <div className="section-container mt-8 mb-12">
+            <h2 className="text-2xl font-bold mb-2">{t('flightAndHotel.searchResults')}</h2>
+            <p className="text-gray-500 mb-6">{t('flightAndHotel.searchDesc')}</p>
+
+            {loading ? (
+              <div className="flex justify-center items-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {results.map((pkg) => (
+                  <div key={pkg.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
+                    {/* Image */}
+                    <div className="relative h-48 overflow-hidden">
+                      <img src={pkg.hotelImg} alt={pkg.hotel} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                      <span className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+                        <i className="fa-solid fa-tag mr-1"></i> {t('flightAndHotel.save')} {pkg.savings}%
+                      </span>
+                      <div className="absolute bottom-3 left-3 text-white">
+                        <p className="font-bold text-lg drop-shadow">{pkg.hotel}</p>
+                        <p className="text-sm opacity-90">{'⭐'.repeat(pkg.hotelStars)}</p>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                          <i className="fa-solid fa-plane text-blue-500"></i>
+                          <span>{pkg.airline}</span>
+                          <span className="text-gray-300">|</span>
+                          <span>{pkg.originCity} → {pkg.destCity}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                          <i className="fa-solid fa-moon text-indigo-500"></i>
+                          <span>{pkg.nights} {t('flightAndHotel.nights')}</span>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-gray-100 pt-3 flex justify-between items-end">
+                        <div>
+                          <p className="text-xs text-gray-400 line-through">{pkg.originalPrice.toLocaleString('vi-VN')} đ</p>
+                          <p className="text-xl font-bold text-gray-900">{pkg.packagePrice.toLocaleString('vi-VN')} đ</p>
+                          <p className="text-[10px] text-gray-400">{t('flightAndHotel.perPerson')}</p>
+                        </div>
+                        <DetailOverlay
+                          trigger={
+                            <button className="bg-[#006ce4] text-white px-5 py-2.5 rounded-lg font-bold hover:bg-[#003b95] transition-all duration-200 flex items-center gap-2 text-sm active:scale-95">
+                              {t('flightAndHotel.viewPackage')} <i className="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                          }
+                          title={pkg.hotel}
+                          description={`${pkg.originCity} → ${pkg.destCity} • ${pkg.airline}`}
+                          content={
+                            <div className="space-y-4">
+                              {/* Hotel image */}
+                              <div className="rounded-lg overflow-hidden h-48">
+                                <img src={pkg.hotelImg} alt={pkg.hotel} className="w-full h-full object-cover" />
+                              </div>
+                              {/* Flight info */}
+                              <div className="bg-blue-50 p-4 rounded-lg">
+                                <p className="font-bold text-blue-900 mb-2 flex items-center gap-2">
+                                  <i className="fa-solid fa-plane"></i> {t('flightAndHotel.flightInfo')}
+                                </p>
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                  <div>
+                                    <p className="text-gray-500">{t('flightAndHotel.airline')}</p>
+                                    <p className="font-semibold">{pkg.airline}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-500">{t('flightAndHotel.route')}</p>
+                                    <p className="font-semibold">{pkg.originCity} → {pkg.destCity}</p>
+                                  </div>
+                                </div>
+                              </div>
+                              {/* Hotel info */}
+                              <div className="bg-amber-50 p-4 rounded-lg">
+                                <p className="font-bold text-amber-900 mb-2 flex items-center gap-2">
+                                  <i className="fa-solid fa-hotel"></i> {t('flightAndHotel.hotelInfo')}
+                                </p>
+                                <div className="grid grid-cols-2 gap-3 text-sm">
+                                  <div>
+                                    <p className="text-gray-500">{t('flightAndHotel.hotelName')}</p>
+                                    <p className="font-semibold">{pkg.hotel}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-gray-500">{t('flightAndHotel.duration')}</p>
+                                    <p className="font-semibold">{pkg.nights} {t('flightAndHotel.nights')}</p>
+                                  </div>
+                                </div>
+                              </div>
+                              {/* Benefits */}
+                              <div className="grid grid-cols-2 gap-2 text-xs font-medium">
+                                <div className="flex items-center gap-2 text-green-700 bg-green-50 p-2.5 rounded-lg">
+                                  <i className="fa-solid fa-check"></i> {t('flightAndHotel.freeCancellation')}
+                                </div>
+                                <div className="flex items-center gap-2 text-green-700 bg-green-50 p-2.5 rounded-lg">
+                                  <i className="fa-solid fa-check"></i> {t('flightAndHotel.insurance')}
+                                </div>
+                                <div className="flex items-center gap-2 text-blue-700 bg-blue-50 p-2.5 rounded-lg">
+                                  <i className="fa-solid fa-shield-halved"></i> {t('flightAndHotel.securePayment')}
+                                </div>
+                                <div className="flex items-center gap-2 text-blue-700 bg-blue-50 p-2.5 rounded-lg">
+                                  <i className="fa-solid fa-percent"></i> {t('flightAndHotel.bestPrice')}
+                                </div>
+                              </div>
+                            </div>
+                          }
+                          footer={
+                            <div className="flex flex-col items-end">
+                              <p className="text-sm text-gray-400 line-through">{pkg.originalPrice.toLocaleString('vi-VN')} đ</p>
+                              <p className="text-xl font-bold text-gray-900 mb-2">{pkg.packagePrice.toLocaleString('vi-VN')} đ</p>
+                              <button
+                                onClick={() => navigate(`/checkout?type=package&name=${encodeURIComponent(pkg.hotel + ' + ' + pkg.airline)}&price=${pkg.packagePrice}&details=${encodeURIComponent(JSON.stringify({ [t('flightAndHotel.route')]: pkg.originCity + ' → ' + pkg.destCity, [t('flightAndHotel.airline')]: pkg.airline, [t('flightAndHotel.duration')]: pkg.nights + ' ' + t('flightAndHotel.nights') }))}`)}
+                                className="bg-[#006ce4] text-white px-8 py-2.5 rounded-md font-bold hover:bg-[#003b95] transition"
+                              >
+                                {t('flightAndHotel.bookPackage')}
+                              </button>
+                            </div>
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

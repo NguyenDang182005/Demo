@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { DatePicker, Select, Checkbox, ConfigProvider } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { DatePicker, Select, Checkbox, ConfigProvider, message } from 'antd';
 import { Button } from '@mui/material';
 import dayjs from 'dayjs';
 import axios from 'axios';
@@ -12,6 +13,7 @@ const { RangePicker } = DatePicker;
 
 const CarRental = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [differentLocation, setDifferentLocation] = useState(false);
   const [pickupCity, setPickupCity] = useState(null);
   const [pickupDatetime, setPickupDatetime] = useState(null);
@@ -39,7 +41,7 @@ const CarRental = () => {
 
   const handleSearch = async () => {
     if (!pickupCity || !pickupDatetime) {
-      alert(t('common.pleaseSelectPickupInfo') || "Vui lòng chọn địa điểm nhận và ngày giờ");
+      message.warning(t('common.pleaseSelectPickupInfo') || "Vui lòng chọn địa điểm nhận và ngày giờ");
       return;
     }
     setLoading(true);
@@ -62,7 +64,12 @@ const CarRental = () => {
   };
 
   return (
-    <ConfigProvider theme={{ token: { colorPrimary: '#003b95' } }}>
+    <ConfigProvider theme={{ 
+      token: { 
+        colorPrimary: '#003b95', 
+        fontFamily: "'Inter', sans-serif" 
+      } 
+    }}>
       <div className="w-full flex flex-col items-center bg-gray-50 min-h-screen text-black">
 
         {/* Banner */}
@@ -93,12 +100,12 @@ const CarRental = () => {
               <div className={`border rounded-lg p-2 flex items-center gap-2 bg-white ${differentLocation ? 'md:col-span-3' : 'md:col-span-5'}`}>
                 <LocationOnIcon className="text-gray-400" />
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-500 uppercase">{t('carRental.pickupLocation')}</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase line-clamp-1">{t('carRental.pickupLocation')}</span>
                   <Select
                     showSearch
                     placeholder={t('carRental.pickupPlaceholder')}
                     variant="borderless"
-                    className="w-full"
+                    className="w-full text-sm"
                     onChange={(val) => setPickupCity(val)}
                     filterOption={(input, option) => (option?.value ?? '').toLowerCase().includes(input.toLowerCase())}
                     options={locations.map(city => ({ value: city, label: city }))}
@@ -126,11 +133,11 @@ const CarRental = () => {
 
               {/* Lịch trình */}
               <div className={`${differentLocation ? 'md:col-span-4' : 'md:col-span-5'} border rounded-lg p-2 bg-white`}>
-                <span className="text-[10px] font-bold text-gray-500 uppercase px-3">{t('carRental.dateRange')}</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase px-3 line-clamp-1">{t('carRental.dateRange')}</span>
                 <RangePicker
                   disabledDate={disabledDate}
                   variant="borderless"
-                  className="w-full"
+                  className="w-full text-sm"
                   format="DD/MM/YYYY HH:mm"
                   showTime={{ format: 'HH:mm' }}
                   onChange={(dates) => setPickupDatetime(dates)}
@@ -217,7 +224,11 @@ const CarRental = () => {
                         </div>
                       }
                       footer={
-                        <Button variant="contained" sx={{ backgroundColor: '#006ce4' }}>{t('carRental.continueBooking')}</Button>
+                        <Button
+                          variant="contained"
+                          sx={{ backgroundColor: '#006ce4' }}
+                          onClick={() => navigate(`/checkout?type=car&name=${encodeURIComponent(car.carModel + ' - ' + car.companyName)}&price=${car.pricePerDay}&details=${encodeURIComponent(JSON.stringify({ [t('carRental.numberOfSeats')]: car.seats, [t('carRental.locationLabel')]: car.location?.city }))}`)}
+                        >{t('carRental.continueBooking')}</Button>
                       }
                     />
                   </div>

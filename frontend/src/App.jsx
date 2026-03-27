@@ -17,6 +17,7 @@ import CustomerService from './pages/CustomerService';
 import BecomePartner from './pages/BecomePartner';
 import Business from './pages/Business';
 import Account from './pages/Account';
+import Checkout from './pages/Checkout';
 
 function AppContent() {
   const location = useLocation();
@@ -51,6 +52,7 @@ function AppContent() {
           <Route path="/become-partner" element={<BecomePartner />} />
           <Route path="/business" element={<Business />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Routes>
       </main>
 

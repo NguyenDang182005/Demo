@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { DatePicker, Select, Radio, ConfigProvider } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { DatePicker, Select, Radio, ConfigProvider, message } from 'antd';
 import { Button } from '@mui/material';
 import dayjs from 'dayjs';
 import axios from 'axios';
@@ -18,6 +19,7 @@ const disabledDate = (current) => {
 
 const Flights = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [departureCode, setDepartureCode] = useState(null);
   const [arrivalCode, setArrivalCode] = useState(null);
   const [departureDate, setDepartureDate] = useState(null);
@@ -39,7 +41,7 @@ const Flights = () => {
 
   const handleSearch = async () => {
     if (!departureCode || !arrivalCode || !departureDate) {
-      alert("Vui lòng chọn đầy đủ thông tin: Điểm đi, Điểm đến và Ngày đi");
+      message.warning("Vui lòng chọn đầy đủ thông tin: Điểm đi, Điểm đến và Ngày đi");
       return;
     }
     setLoading(true);
@@ -64,7 +66,12 @@ const Flights = () => {
   };
 
   return (
-    <ConfigProvider theme={{ token: { colorPrimary: '#003b95' } }}>
+    <ConfigProvider theme={{ 
+      token: { 
+        colorPrimary: '#003b95',
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+      } 
+    }}>
       <div className="w-full flex flex-col items-center bg-gray-50 min-h-screen">
 
         {/* Banner */}
@@ -91,12 +98,12 @@ const Flights = () => {
               <div className="md:col-span-3 border rounded-lg p-2 hover:border-booking-blue bg-white flex items-center gap-2">
                 <FlightTakeoffIcon className="text-gray-400" />
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-500 uppercase font-sans">{t('flights.from')}</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase font-sans line-clamp-1">{t('flights.from')}</span>
                   <Select
                     showSearch
                     placeholder={t('flights.originPlaceholder')}
                     variant="borderless"
-                    className="w-full"
+                    className="w-full text-sm"
                     onChange={(val) => setDepartureCode(val)}
                     filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
                     options={airports.map(a => ({ value: a.code, label: `${a.city} (${a.code})` }))} />
@@ -120,12 +127,12 @@ const Flights = () => {
               </div>
 
               {/* DATE SELECTION */}
-              <div className="md:col-span-4 border rounded-lg p-2 hover:border-booking-blue bg-white">
-                <span className="text-[10px] font-bold text-gray-500 uppercase px-3 font-sans">{t('flights.dateRange')}</span>
+              <div className="md:col-span-4 border rounded-lg p-1.5 hover:border-booking-blue bg-white">
+                <span className="text-[10px] font-bold text-gray-400 uppercase px-3 font-sans line-clamp-1">{t('flights.dateRange')}</span>
                 <RangePicker
                   disabledDate={disabledDate} // Áp dụng logic chặn ngày quá khứ
                   variant="borderless"
-                  className="w-full"
+                  className="w-full text-sm"
                   format="DD/MM/YYYY"
                   placeholder={[t('flights.dateStart'), t('flights.dateEnd')]}
                   onChange={(dates) => setDepartureDate(dates)}
@@ -184,24 +191,36 @@ const Flights = () => {
             <h2 className="text-2xl font-bold mb-4">{t('flights.searchResults')}</h2>
             <div className="flex flex-col gap-4">
               {results.map((flight) => (
-                <div key={flight.id} className="result-card flex flex-col md:flex-row justify-between items-center">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-lg text-booking-blue">{flight.airline}</span>
-                    <span className="text-sm text-gray-500">{t('flights.flightNumber')}: {flight.flightNumber}</span>
+                <div key={flight.id} className="result-card flex flex-col md:flex-row gap-6 justify-between items-center p-6 bg-white rounded-xl border hover:shadow-lg transition-shadow">
+                  {/* Cột 1: Thông tin hãng bay */}
+                  <div className="flex flex-col md:w-1/4">
+                    <span className="font-bold text-xl text-booking-blue truncate">{flight.airline}</span>
+                    <span className="text-sm text-gray-500 mt-1">{t('flights.flightNumber')}: {flight.flightNumber}</span>
                   </div>
-                  <div className="flex items-center gap-6 mt-4 md:mt-0 text-center">
-                    <div>
-                      <div className="text-xl font-bold">{dayjs(flight.departureTime).format('HH:mm')}</div>
-                      <div className="text-gray-500">{flight.departureAirport?.code}</div>
+                  
+                  {/* Cột 2: Thời gian bay - Giữa */}
+                  <div className="flex items-center justify-center gap-4 md:gap-8 w-full md:w-2/4 text-center">
+                    <div className="flex flex-col">
+                      <div className="text-2xl font-extrabold text-gray-900">{dayjs(flight.departureTime).format('HH:mm')}</div>
+                      <div className="text-gray-500 font-medium">{flight.departureAirport?.code}</div>
                     </div>
-                    <div className="text-gray-400 border-b border-gray-300 w-16 mb-6"></div>
-                    <div>
-                      <div className="text-xl font-bold">{dayjs(flight.arrivalTime).format('HH:mm')}</div>
-                      <div className="text-gray-500">{flight.arrivalAirport?.code}</div>
+                    
+                    <div className="flex flex-col items-center justify-center w-full max-w-[120px]">
+                      <span className="text-[10px] text-gray-400 uppercase tracking-widest mb-1 font-semibold text-center">Bay thẳng</span>
+                      <div className="w-16 md:w-full border-b-2 border-gray-300 relative flex items-center justify-center mb-5">
+                          <i className="fa-solid fa-plane absolute bg-white px-1 text-gray-400 text-sm"></i>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <div className="text-2xl font-extrabold text-gray-900">{dayjs(flight.arrivalTime).format('HH:mm')}</div>
+                      <div className="text-gray-500 font-medium">{flight.arrivalAirport?.code}</div>
                     </div>
                   </div>
-                  <div className="mt-4 md:mt-0 flex flex-col items-end">
-                    <span className="text-2xl font-bold text-red-600 mb-2">{flight.price.toLocaleString('vi-VN')} VND</span>
+
+                  {/* Cột 3: Giá và Nút bấm */}
+                  <div className="flex flex-col items-end md:w-1/4 w-full">
+                    <span className="text-2xl font-extrabold text-red-600 mb-3">{flight.price.toLocaleString('vi-VN')} VND</span>
                     <DetailOverlay 
                       trigger={<Button variant="contained" sx={{ backgroundColor: '#006ce4', fontWeight: 'bold' }}>{t('flights.selectFlight')}</Button>}
                       title={`${t('flights.flightDetails')} ${flight.flightNumber}`}
@@ -238,7 +257,11 @@ const Flights = () => {
                         </div>
                       }
                       footer={
-                        <Button variant="contained" sx={{ backgroundColor: '#006ce4' }}>{t('flights.confirmSelection')}</Button>
+                        <Button
+                          variant="contained"
+                          sx={{ backgroundColor: '#006ce4' }}
+                          onClick={() => navigate(`/checkout?type=flight&name=${encodeURIComponent(flight.airline + ' ' + flight.flightNumber)}&price=${flight.price}&details=${encodeURIComponent(JSON.stringify({ [t('flights.departure')]: flight.departureAirport?.city + ' (' + flight.departureAirport?.code + ')', [t('flights.arrival')]: flight.arrivalAirport?.city + ' (' + flight.arrivalAirport?.code + ')' }))}`)}
+                        >{t('flights.confirmSelection')}</Button>
                       }
                     />
                   </div>

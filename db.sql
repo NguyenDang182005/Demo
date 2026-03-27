@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS booking_db;
+CREATE DATABASE IF NOT EXISTS booking_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE booking_db;
 
 -- =========================================================
@@ -42,7 +42,8 @@ CREATE TABLE hotels (
     city VARCHAR(255) NOT NULL,
     address VARCHAR(500) NOT NULL,
     description TEXT,
-    rating DECIMAL(2,1) DEFAULT 0.0
+    rating DECIMAL(2,1) DEFAULT 0.0,
+    image_url VARCHAR(1000)
 );
 
 -- Các loại phòng trong khách sạn

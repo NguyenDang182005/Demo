@@ -17,4 +17,10 @@ public class Attraction {
     private String category;
     @Column(nullable = false)
     private BigDecimal price;
+    @Column(columnDefinition = "TEXT")
+    private String description;
+    @Column(name = "image_url")
+    private String imageUrl;
+    @Column(precision = 2, scale = 1)
+    private BigDecimal rating;
 }
