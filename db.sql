@@ -22,7 +22,8 @@ CREATE TABLE airports (
     code VARCHAR(10) PRIMARY KEY, -- Ví dụ: HAN, SGN, DAD
     name VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
-    country VARCHAR(100) DEFAULT 'Vietnam'
+    country VARCHAR(100) DEFAULT 'Vietnam',
+    INDEX (city)
 );
 
 -- Bảng Địa điểm/Trạm thuê xe

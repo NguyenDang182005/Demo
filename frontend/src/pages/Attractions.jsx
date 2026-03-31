@@ -181,127 +181,9 @@ const Attractions = () => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-                                {results.map((attraction) => {
-                                    const catColor = getCategoryColor(attraction.category);
-                                    return (
-                                        <div key={attraction.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
-                                            {/* Image */}
-                                            <div className="relative h-48 overflow-hidden">
-                                                <img 
-                                                    src={attraction.imageUrl || `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500`} 
-                                                    alt={attraction.name} 
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500';
-                                                    }}
-                                                />
-                                                <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
-                                                {/* Category badge */}
-                                                {attraction.category && (
-                                                    <span className={`absolute top-3 left-3 ${catColor.bg} ${catColor.text} text-xs font-bold px-3 py-1 rounded-full shadow-sm backdrop-blur-sm`}>
-                                                        <i className={`${getCategoryIcon(attraction.category)} mr-1`}></i>
-                                                        {attraction.category}
-                                                    </span>
-                                                )}
-                                                {/* Rating badge */}
-                                                {attraction.rating && (
-                                                    <div className="absolute top-3 right-3 bg-[#003580] text-white px-2 py-1 rounded-md text-sm font-bold shadow-md">
-                                                        {parseFloat(attraction.rating).toFixed(1)}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Content */}
-                                            <div className="p-4 flex-1 flex flex-col justify-between">
-                                                <div>
-                                                    <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2 group-hover:text-[#006ce4] transition-colors">
-                                                        {attraction.name}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-500 mb-2 flex items-center gap-1">
-                                                        <i className="fa-solid fa-location-dot text-[#006ce4]"></i>
-                                                        {attraction.city}
-                                                    </p>
-                                                    {attraction.description && (
-                                                        <p className="text-sm text-gray-600 line-clamp-2 mb-3">{attraction.description}</p>
-                                                    )}
-                                                </div>
-
-                                                <div className="flex justify-between items-end mt-auto pt-3 border-t border-gray-100">
-                                                    <div>
-                                                        <p className="text-xs text-gray-400">{t('attractions.priceFrom') || 'Giá từ'}</p>
-                                                        <p className="text-xl font-bold text-gray-900">
-                                                            {attraction.price ? `${Number(attraction.price).toLocaleString('vi-VN')} đ` : (t('attractions.contactPrice') || 'Liên hệ')}
-                                                        </p>
-                                                    </div>
-                                                    <DetailOverlay
-                                                        trigger={
-                                                            <button className="bg-[#006ce4] text-white px-5 py-2.5 rounded-lg font-bold hover:bg-[#003b95] transition-all duration-200 flex items-center gap-2 text-sm active:scale-95">
-                                                                {t('attractions.viewDetails') || 'Xem chi tiết'} <i className="fa-solid fa-chevron-right text-xs"></i>
-                                                            </button>
-                                                        }
-                                                        title={attraction.name}
-                                                        description={`${attraction.city} ${attraction.category ? '• ' + attraction.category : ''}`}
-                                                        content={
-                                                            <div className="space-y-4">
-                                                                {/* Image */}
-                                                                <div className="rounded-lg overflow-hidden h-56">
-                                                                    <img 
-                                                                        src={attraction.imageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600'}
-                                                                        className="w-full h-full object-cover"
-                                                                        alt={attraction.name}
-                                                                    />
-                                                                </div>
-                                                                {/* Rating */}
-                                                                {attraction.rating && (
-                                                                    <div className="flex items-center gap-3">
-                                                                        <div className="bg-[#003580] text-white px-3 py-1.5 rounded-md font-bold text-lg">
-                                                                            {parseFloat(attraction.rating).toFixed(1)}
-                                                                        </div>
-                                                                        <span className="font-bold text-gray-700">{t('attractions.excellent') || 'Tuyệt vời'}</span>
-                                                                    </div>
-                                                                )}
-                                                                {/* Description */}
-                                                                <div className="prose prose-sm text-gray-600">
-                                                                    <p className="font-semibold text-gray-900 mb-1">{t('attractions.aboutAttraction') || 'Thông tin hoạt động:'}</p>
-                                                                    <p>{attraction.description || (t('attractions.noDescription') || 'Chưa có mô tả chi tiết.')}</p>
-                                                                </div>
-                                                                {/* Info grid */}
-                                                                <div className="grid grid-cols-2 gap-2 text-xs font-medium">
-                                                                    <div className="flex items-center gap-2 text-green-700 bg-green-50 p-2.5 rounded-lg">
-                                                                        <i className="fa-solid fa-check"></i> {t('attractions.instantConfirmation') || 'Xác nhận tức thì'}
-                                                                    </div>
-                                                                    <div className="flex items-center gap-2 text-green-700 bg-green-50 p-2.5 rounded-lg">
-                                                                        <i className="fa-solid fa-check"></i> {t('attractions.freeCancellation') || 'Miễn phí hủy'}
-                                                                    </div>
-                                                                    <div className="flex items-center gap-2 text-blue-700 bg-blue-50 p-2.5 rounded-lg">
-                                                                        <i className="fa-solid fa-clock"></i> {t('attractions.flexibleSchedule') || 'Lịch trình linh hoạt'}
-                                                                    </div>
-                                                                    <div className="flex items-center gap-2 text-blue-700 bg-blue-50 p-2.5 rounded-lg">
-                                                                        <i className="fa-solid fa-shield-halved"></i> {t('attractions.safePayment') || 'Thanh toán an toàn'}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        }
-                                                        footer={
-                                                            <div className="flex flex-col items-end">
-                                                                <p className="text-xl font-bold text-gray-900 mb-2">
-                                                                    {attraction.price ? `${Number(attraction.price).toLocaleString('vi-VN')} đ` : (t('attractions.contactPrice') || 'Liên hệ')}
-                                                                </p>
-                                                                <button
-                                                                  onClick={() => navigate(`/checkout?type=attraction&name=${encodeURIComponent(attraction.name)}&price=${attraction.price || 0}&details=${encodeURIComponent(JSON.stringify({ [t('attractions.destination')]: attraction.city, ...(attraction.category ? { 'Category': attraction.category } : {}) }))}`)}
-                                                                  className="bg-[#006ce4] text-white px-8 py-2.5 rounded-md font-bold hover:bg-[#003b95] transition"
-                                                                >
-                                                                    {t('attractions.bookNow') || 'Đặt ngay'}
-                                                                </button>
-                                                            </div>
-                                                        }
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                {results.map((attraction) => (
+                                    <AttractionCard key={attraction.id} attraction={attraction} t={t} navigate={navigate} />
+                                ))}
                             </div>
                         )}
                     </div>
@@ -381,6 +263,193 @@ const Attractions = () => {
                 )}
             </div>
         </ConfigProvider>
+    );
+};
+
+const AttractionCard = ({ attraction, t, navigate }) => {
+    // Helper to get a category icon
+    const getCategoryIcon = (category) => {
+        if (!category) return 'fa-solid fa-star';
+        const cat = category.toLowerCase();
+        if (cat.includes('thiên nhiên') || cat.includes('nature')) return 'fa-solid fa-mountain-sun';
+        if (cat.includes('văn hóa') || cat.includes('culture') || cat.includes('lịch sử') || cat.includes('history')) return 'fa-solid fa-landmark';
+        if (cat.includes('giải trí') || cat.includes('entertainment') || cat.includes('vui chơi')) return 'fa-solid fa-masks-theater';
+        if (cat.includes('ẩm thực') || cat.includes('food')) return 'fa-solid fa-utensils';
+        if (cat.includes('biển') || cat.includes('beach')) return 'fa-solid fa-umbrella-beach';
+        if (cat.includes('mua sắm') || cat.includes('shopping')) return 'fa-solid fa-bag-shopping';
+        return 'fa-solid fa-location-dot';
+    };
+
+    // Helper to get category color
+    const getCategoryColor = (category) => {
+        if (!category) return { bg: 'bg-blue-50', text: 'text-blue-700' };
+        const cat = category.toLowerCase();
+        if (cat.includes('thiên nhiên') || cat.includes('nature')) return { bg: 'bg-green-50', text: 'text-green-700' };
+        if (cat.includes('văn hóa') || cat.includes('culture') || cat.includes('lịch sử')) return { bg: 'bg-amber-50', text: 'text-amber-700' };
+        if (cat.includes('giải trí') || cat.includes('entertainment')) return { bg: 'bg-purple-50', text: 'text-purple-700' };
+        if (cat.includes('ẩm thực') || cat.includes('food')) return { bg: 'bg-orange-50', text: 'text-orange-700' };
+        if (cat.includes('biển') || cat.includes('beach')) return { bg: 'bg-cyan-50', text: 'text-cyan-700' };
+        return { bg: 'bg-blue-50', text: 'text-blue-700' };
+    };
+
+    const catColor = getCategoryColor(attraction.category);
+    const disabledDate = (current) => current && current < dayjs().startOf('day');
+
+    const [visitDate, setVisitDate] = useState(dayjs().add(1, 'day'));
+    const [tickets, setTickets] = useState(1);
+    
+    const basePrice = attraction.price || 0;
+    const totalPrice = basePrice * tickets;
+
+    const handleBook = () => {
+        if (!visitDate) {
+            message.warning("Vui lòng chọn ngày tham quan");
+            return;
+        }
+        navigate(`/checkout?type=attraction&name=${encodeURIComponent(attraction.name)}&price=${totalPrice}&details=${encodeURIComponent(JSON.stringify({ 
+            [t('attractions.destination')]: attraction.city, 
+            ...(attraction.category ? { 'Danh mục': attraction.category } : {}),
+            'Ngày tham quan': visitDate.format('DD/MM/YYYY'),
+            'Số lượng vé': tickets
+        }))}`);
+    };
+
+    return (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col">
+            {/* Image */}
+            <div className="relative h-48 overflow-hidden">
+                <img 
+                    src={attraction.imageUrl || `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500`} 
+                    alt={attraction.name} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500';
+                    }}
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
+                {/* Category badge */}
+                {attraction.category && (
+                    <span className={`absolute top-3 left-3 ${catColor.bg} ${catColor.text} text-xs font-bold px-3 py-1 rounded-full shadow-sm backdrop-blur-sm`}>
+                        <i className={`${getCategoryIcon(attraction.category)} mr-1`}></i>
+                        {attraction.category}
+                    </span>
+                )}
+                {/* Rating badge */}
+                {attraction.rating && (
+                    <div className="absolute top-3 right-3 bg-[#003580] text-white px-2 py-1 rounded-md text-sm font-bold shadow-md">
+                        {parseFloat(attraction.rating).toFixed(1)}
+                    </div>
+                )}
+            </div>
+
+            {/* Content */}
+            <div className="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                    <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2 group-hover:text-[#006ce4] transition-colors">
+                        {attraction.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-2 flex items-center gap-1">
+                        <i className="fa-solid fa-location-dot text-[#006ce4]"></i>
+                        {attraction.city}
+                    </p>
+                    {attraction.description && (
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-3">{attraction.description}</p>
+                    )}
+                </div>
+
+                <div className="flex justify-between items-end mt-auto pt-3 border-t border-gray-100">
+                    <div>
+                        <p className="text-xs text-gray-400">{t('attractions.priceFrom') || 'Giá vé từ'}</p>
+                        <p className="text-xl font-bold text-gray-900">
+                            {attraction.price ? `${Number(attraction.price).toLocaleString('vi-VN')} đ` : (t('attractions.contactPrice') || 'Liên hệ')}
+                        </p>
+                    </div>
+                    <DetailOverlay
+                        trigger={
+                            <button className="bg-[#006ce4] text-white px-5 py-2.5 rounded-lg font-bold hover:bg-[#003b95] transition-all duration-200 flex items-center gap-2 text-sm active:scale-95">
+                                {t('attractions.viewDetails') || 'Xem chi tiết'} <i className="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                        }
+                        title={attraction.name}
+                        description={`${attraction.city} ${attraction.category ? '• ' + attraction.category : ''}`}
+                        content={
+                            <div className="space-y-4">
+                                {/* Image and Rating */}
+                                <div className="rounded-lg overflow-hidden h-40">
+                                    <img 
+                                        src={attraction.imageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600'}
+                                        className="w-full h-full object-cover"
+                                        alt={attraction.name}
+                                    />
+                                </div>
+                                {/* Booking Inputs */}
+                                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-4 space-y-4">
+                                    <div className="flex flex-col">
+                                        <label className="text-sm font-bold text-blue-900 mb-1">Ngày tham quan</label>
+                                        <DatePicker 
+                                            value={visitDate} 
+                                            onChange={(date) => setVisitDate(date)} 
+                                            disabledDate={disabledDate}
+                                            className="w-full h-10 rounded-lg border-blue-200"
+                                            format="DD/MM/YYYY"
+                                            allowClear={false}
+                                        />
+                                    </div>
+                                    <div className="flex flex-col items-start gap-1">
+                                        <label className="text-sm font-bold text-blue-900">Số lượng vé</label>
+                                        <div className="flex items-center gap-4 bg-white px-1 py-1 rounded-lg border border-blue-200">
+                                            <button 
+                                                onClick={() => setTickets(Math.max(1, tickets - 1))}
+                                                className="w-8 h-8 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center font-bold"
+                                            >-</button>
+                                            <span className="font-bold text-gray-800 w-4 text-center">{tickets}</span>
+                                            <button 
+                                                onClick={() => setTickets(tickets + 1)}
+                                                className="w-8 h-8 rounded-md bg-gray-100 hover:bg-gray-200 text-[#006ce4] flex items-center justify-center font-bold"
+                                            >+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Description */}
+                                <div className="prose prose-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <p className="font-bold text-gray-900 mb-1">{t('attractions.aboutAttraction') || 'Thông tin hoạt động:'}</p>
+                                    <p>{attraction.description || (t('attractions.noDescription') || 'Chưa có mô tả chi tiết.')}</p>
+                                </div>
+                                {/* Info grid */}
+                                <div className="grid grid-cols-2 gap-2 text-xs font-medium">
+                                    <div className="flex items-center gap-2 text-green-700 bg-green-50 p-2.5 rounded-lg border border-green-100">
+                                        <i className="fa-solid fa-check"></i> {t('attractions.instantConfirmation') || 'Xác nhận tức thì'}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-green-700 bg-green-50 p-2.5 rounded-lg border border-green-100">
+                                        <i className="fa-solid fa-check"></i> {t('attractions.freeCancellation') || 'Miễn phí hủy'}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-blue-700 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
+                                        <i className="fa-solid fa-clock"></i> {t('attractions.flexibleSchedule') || 'Lịch trình linh hoạt'}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-blue-700 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
+                                        <i className="fa-solid fa-shield-halved"></i> {t('attractions.safePayment') || 'Thanh toán an toàn'}
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        footer={
+                            <div className="flex flex-col items-end">
+                                <p className="text-xl font-bold text-gray-900 mb-2">
+                                    Tổng: {totalPrice ? `${Number(totalPrice).toLocaleString('vi-VN')} đ` : (t('attractions.contactPrice') || 'Liên hệ')}
+                                </p>
+                                <button
+                                    onClick={handleBook}
+                                    className="bg-[#006ce4] text-white px-8 py-2.5 rounded-md font-bold hover:bg-[#003b95] transition"
+                                >
+                                    {t('attractions.bookNow') || 'Đặt ngay'}
+                                </button>
+                            </div>
+                        }
+                    />
+                </div>
+            </div>
+        </div>
     );
 };
 

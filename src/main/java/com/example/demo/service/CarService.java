@@ -13,7 +13,7 @@ public class CarService {
     @Autowired
     private CarRepository carRepository;
 
-    public List<Car> searchCars(String pickupCity, LocalDateTime pickupTime, LocalDateTime dropoffTime) {
+    public List<Car> searchCars(String pickupCity, String dropoffCity, LocalDateTime pickupTime, LocalDateTime dropoffTime) {
          return carRepository.findAvailableCars(pickupCity, pickupTime, dropoffTime);
     }
     

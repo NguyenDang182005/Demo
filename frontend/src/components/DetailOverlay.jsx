@@ -18,14 +18,16 @@ const DetailOverlay = ({ trigger, title, description, content, footer }) => {
           {content}
         </div>
 
-        <Flex gap="3" mt="4" justify="end">
-          <Dialog.Close asChild>
-            <Button variant="soft" color="gray">
-              Đóng
-            </Button>
-          </Dialog.Close>
+        <div className="flex flex-col gap-4 mt-6">
           {footer}
-        </Flex>
+          <div className="flex justify-start">
+            <Dialog.Close asChild>
+              <Button variant="soft" color="gray">
+                Đóng
+              </Button>
+            </Dialog.Close>
+          </div>
+        </div>
       </Dialog.Content>
     </Dialog.Root>
   );

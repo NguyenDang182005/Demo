@@ -16,6 +16,7 @@ const CarRental = () => {
   const navigate = useNavigate();
   const [differentLocation, setDifferentLocation] = useState(false);
   const [pickupCity, setPickupCity] = useState(null);
+  const [dropoffCity, setDropoffCity] = useState(null);
   const [pickupDatetime, setPickupDatetime] = useState(null);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -51,11 +52,35 @@ const CarRental = () => {
       const response = await axios.get(`/api/cars/search`, {
         params: {
           pickupCity: pickupCity,
+          dropoffCity: differentLocation ? dropoffCity : pickupCity,
           pickupTime: pickupIso,
           dropoffTime: dropoffIso
         }
       });
-      setResults(response.data);
+      
+      // Tinh so ngay thue
+      const pickup = pickupDatetime[0];
+      const dropoff = pickupDatetime[1];
+      const diffHours = dropoff.diff(pickup, 'hour');
+      const rentalDays = Math.max(1, Math.ceil(diffHours / 24));
+
+      // logic tinh gia: (Gia thue ngay * so ngay) + phi mot chieu (neu co)
+      const processedResults = response.data.map(car => {
+        let extraFee = 0;
+        if (differentLocation && dropoffCity && pickupCity && dropoffCity !== pickupCity) {
+          extraFee = 500000;
+        }
+        const basePrice = car.pricePerDay * rentalDays;
+        return {
+          ...car,
+          rentalDays,
+          oneWayFee: extraFee,
+          totalPrice: basePrice + extraFee,
+          dropoffCity: differentLocation ? dropoffCity : pickupCity
+        };
+      });
+
+      setResults(processedResults);
     } catch (error) {
       console.error("Error fetching cars", error);
     } finally {
@@ -124,6 +149,8 @@ const CarRental = () => {
                       placeholder={t('carRental.dropoffPlaceholder')} 
                       variant="borderless" 
                       className="w-full" 
+                      value={dropoffCity}
+                      onChange={(val) => setDropoffCity(val)}
                       filterOption={(input, option) => (option?.value ?? '').toLowerCase().includes(input.toLowerCase())}
                       options={locations.map(city => ({ value: city, label: city }))}
                     />
@@ -182,8 +209,11 @@ const CarRental = () => {
                       <span className="font-bold">{t('carRental.locationLabel')}</span> {car.location?.name}, {car.location?.city}
                     </div>
                   </div>
-                  <div className="flex justify-between items-end mt-4">
-                    <span className="text-xl font-bold text-red-600">{car.pricePerDay.toLocaleString('vi-VN')} đ <span className="text-sm text-gray-500 font-normal">{t('carRental.perDay')}</span></span>
+                  <div className="flex justify-between items-center mt-4 gap-3">
+                    <div className="flex flex-col">
+                      <span className="text-xl font-bold text-red-600">{car.totalPrice.toLocaleString('vi-VN')} đ</span>
+                      <span className="text-[10px] text-gray-500">{car.pricePerDay.toLocaleString('vi-VN')} đ x {car.rentalDays} ngày {car.oneWayFee > 0 ? `+ ${car.oneWayFee.toLocaleString('vi-VN')} đ phí` : ''}</span>
+                    </div>
                     <DetailOverlay 
                       trigger={<Button variant="contained" sx={{ backgroundColor: '#006ce4', fontWeight: 'bold' }}>{t('carRental.rentNow')}</Button>}
                       title={`${t('carRental.carDetails')} ${car.carModel}`}
@@ -227,7 +257,7 @@ const CarRental = () => {
                         <Button
                           variant="contained"
                           sx={{ backgroundColor: '#006ce4' }}
-                          onClick={() => navigate(`/checkout?type=car&name=${encodeURIComponent(car.carModel + ' - ' + car.companyName)}&price=${car.pricePerDay}&details=${encodeURIComponent(JSON.stringify({ [t('carRental.numberOfSeats')]: car.seats, [t('carRental.locationLabel')]: car.location?.city }))}`)}
+                          onClick={() => navigate(`/checkout?type=car&name=${encodeURIComponent(car.carModel + ' - ' + car.companyName)}&price=${car.totalPrice}&details=${encodeURIComponent(JSON.stringify({ [t('carRental.numberOfSeats')]: car.seats, "Số ngày thuê": car.rentalDays, "Nhận tại": car.location?.city, "Trả tại": car.dropoffCity, "Phí một chiều": car.oneWayFee + " đ" }))}`)}
                         >{t('carRental.continueBooking')}</Button>
                       }
                     />

@@ -23,6 +23,7 @@ const Flights = () => {
   const [departureCode, setDepartureCode] = useState(null);
   const [arrivalCode, setArrivalCode] = useState(null);
   const [departureDate, setDepartureDate] = useState(null);
+  const [tripType, setTripType] = useState('roundtrip');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [airports, setAirports] = useState([]);
@@ -46,20 +47,46 @@ const Flights = () => {
     }
     setLoading(true);
     try {
-      // Format required by Spring @DateTimeFormat(iso)
-      const startDate = departureDate[0].startOf('day').format('YYYY-MM-DDTHH:mm:ss');
-      const endDate = departureDate[1].endOf('day').format('YYYY-MM-DDTHH:mm:ss');
-      const response = await axios.get(`/api/flights/search`, {
-        params: {
-          departureCode: departureCode,
-          arrivalCode: arrivalCode,
-          startDate: startDate,
-          endDate: endDate
-        }
+      // 1. Tìm chuyến đi
+      const outStart = departureDate[0].startOf('day').format('YYYY-MM-DDTHH:mm:ss');
+      const outEnd = departureDate[0].endOf('day').format('YYYY-MM-DDTHH:mm:ss');
+      
+      const responseOut = await axios.get(`/api/flights/search`, {
+        params: { departureCode, arrivalCode, startDate: outStart, endDate: outEnd }
       });
-      setResults(response.data);
+      let outFlights = responseOut.data;
+
+      if (tripType === 'roundtrip') {
+        const retStart = departureDate[1].startOf('day').format('YYYY-MM-DDTHH:mm:ss');
+        const retEnd = departureDate[1].endOf('day').format('YYYY-MM-DDTHH:mm:ss');
+        
+        const responseRet = await axios.get(`/api/flights/search`, {
+          params: { departureCode: arrivalCode, arrivalCode: departureCode, startDate: retStart, endDate: retEnd }
+        });
+        const retFlights = responseRet.data;
+
+        if (retFlights.length === 0) {
+          message.warning("Không tìm thấy chuyến bay chiều về trong ngày bạn chọn!");
+          setResults([]);
+        } else {
+          // Lấy chuyến về rẻ nhất để gép chung
+          const cheapestReturn = retFlights.reduce((prev, curr) => (prev.price < curr.price ? prev : curr), retFlights[0]);
+          
+          const combined = outFlights.map(out => {
+            return {
+              ...out,
+              returnFlight: cheapestReturn
+            };
+          });
+          setResults(combined);
+        }
+      } else {
+        // Một chiều
+        setResults(outFlights);
+      }
     } catch (error) {
       console.error("Error fetching flights", error);
+      message.error("Lỗi khi tìm kiếm chuyến bay");
     } finally {
       setLoading(false);
     }
@@ -88,7 +115,7 @@ const Flights = () => {
           <div className="bg-yellow-400 p-1.5 md:p-2 rounded-2xl shadow-xl transition-shadow hover:shadow-2xl">
             <div className="bg-white rounded-xl overflow-hidden p-4 shadow-inner">
 
-            <Radio.Group defaultValue="roundtrip" buttonStyle="solid">
+            <Radio.Group value={tripType} onChange={(e) => setTripType(e.target.value)} buttonStyle="solid">
               <Radio.Button value="roundtrip">{t('flights.roundtrip')}</Radio.Button>
               <Radio.Button value="oneway">{t('flights.oneway')}</Radio.Button>
             </Radio.Group>
@@ -146,7 +173,7 @@ const Flights = () => {
                   className="h-full bg-booking-blue hover:bg-booking-dark"
                   onClick={handleSearch}
                   disabled={loading}
-                  sx={{ borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', height: '100%', textTransform: 'none' }}>
+                  sx={{ borderRadius: '8px', fontSize: '15px', fontWeight: 'bold', height: '100%', textTransform: 'none', padding: '10px 0' }}>
                   {loading ? t('flights.searching') : t('flights.search')}
                 </Button>
               </div>
@@ -190,16 +217,26 @@ const Flights = () => {
           <div className="section-container mt-6 pb-12">
             <h2 className="text-2xl font-bold mb-4">{t('flights.searchResults')}</h2>
             <div className="flex flex-col gap-4">
-              {results.map((flight) => (
+              {results.map((flight) => {
+                const isRound = tripType === 'roundtrip';
+                const retPrice = flight.returnFlight ? flight.returnFlight.price : 0;
+                
+                const ecoTotal = isRound ? (flight.price + retPrice + 200000) : flight.price;
+                const bizTotal = isRound ? ((flight.price * 2.5) + (retPrice * 2.5) + 200000) : (flight.price * 2.5);
+
+                const tripLabelEco = (isRound ? ' (Khứ hồi)' : ' (Một chiều)') + ' - Phổ thông';
+                const tripLabelBiz = (isRound ? ' (Khứ hồi)' : ' (Một chiều)') + ' - Thương gia';
+
+                return (
                 <div key={flight.id} className="result-card flex flex-col md:flex-row gap-6 justify-between items-center p-6 bg-white rounded-xl border hover:shadow-lg transition-shadow">
                   {/* Cột 1: Thông tin hãng bay */}
-                  <div className="flex flex-col md:w-1/4">
+                  <div className="flex flex-col w-full md:w-1/4 shrink-0">
                     <span className="font-bold text-xl text-booking-blue truncate">{flight.airline}</span>
                     <span className="text-sm text-gray-500 mt-1">{t('flights.flightNumber')}: {flight.flightNumber}</span>
                   </div>
                   
                   {/* Cột 2: Thời gian bay - Giữa */}
-                  <div className="flex items-center justify-center gap-4 md:gap-8 w-full md:w-2/4 text-center">
+                  <div className="flex items-center justify-center gap-4 md:gap-8 w-full flex-1 text-center">
                     <div className="flex flex-col">
                       <div className="text-2xl font-extrabold text-gray-900">{dayjs(flight.departureTime).format('HH:mm')}</div>
                       <div className="text-gray-500 font-medium">{flight.departureAirport?.code}</div>
@@ -219,8 +256,9 @@ const Flights = () => {
                   </div>
 
                   {/* Cột 3: Giá và Nút bấm */}
-                  <div className="flex flex-col items-end md:w-1/4 w-full">
-                    <span className="text-2xl font-extrabold text-red-600 mb-3 whitespace-nowrap">{flight.price.toLocaleString('vi-VN')} VND</span>
+                  <div className="flex flex-col items-center md:items-end w-full md:w-auto shrink-0">
+                    <span className="text-sm text-gray-500 mb-1">Từ</span>
+                    <span className="text-2xl font-extrabold text-red-600 mb-3 whitespace-nowrap">{ecoTotal.toLocaleString('vi-VN')} VND</span>
                     <DetailOverlay 
                       trigger={<Button variant="contained" sx={{ backgroundColor: '#006ce4', fontWeight: 'bold' }}>{t('flights.selectFlight')}</Button>}
                       title={`${t('flights.flightDetails')} ${flight.flightNumber}`}
@@ -228,7 +266,7 @@ const Flights = () => {
                       content={
                         <div className="space-y-4">
                           <div className="flex justify-between items-center bg-blue-50 p-3 rounded">
-                            <span className="font-bold text-booking-blue">{flight.airline}</span>
+                             <span className="font-bold text-booking-blue">{flight.airline} {isRound ? '(Khứ hồi)' : '(Một chiều)'}</span>
                             <span className="text-sm font-medium">#{flight.flightNumber}</span>
                           </div>
                           <div className="grid grid-cols-2 gap-4">
@@ -245,6 +283,23 @@ const Flights = () => {
                               <p className="text-xs text-gray-500">{dayjs(flight.arrivalTime).format('DD/MM/YYYY')}</p>
                             </div>
                           </div>
+                          {flight.returnFlight && (
+                            <div className="mt-4 border-t pt-4">
+                              <p className="font-bold text-booking-blue mb-2">Chuyến về: {flight.returnFlight.airline} #{flight.returnFlight.flightNumber}</p>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="border-l-2 border-blue-200 pl-3">
+                                  <p className="text-xs text-gray-400">{t('flights.departure')}</p>
+                                  <p className="font-bold text-lg">{dayjs(flight.returnFlight.departureTime).format('HH:mm')}</p>
+                                  <p className="text-sm">{flight.returnFlight.departureAirport?.code}</p>
+                                </div>
+                                <div className="border-l-2 border-green-200 pl-3">
+                                  <p className="text-xs text-gray-400">{t('flights.arrival')}</p>
+                                  <p className="font-bold text-lg">{dayjs(flight.returnFlight.arrivalTime).format('HH:mm')}</p>
+                                  <p className="text-sm">{flight.returnFlight.arrivalAirport?.code}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                           <div className="bg-gray-50 p-3 rounded text-sm">
                             <p className="font-semibold mb-1">{t('flights.baggagePolicy')}</p>
                             <ul className="list-disc list-inside text-gray-600">
@@ -257,16 +312,41 @@ const Flights = () => {
                         </div>
                       }
                       footer={
-                        <Button
-                          variant="contained"
-                          sx={{ backgroundColor: '#006ce4' }}
-                          onClick={() => navigate(`/checkout?type=flight&name=${encodeURIComponent(flight.airline + ' ' + flight.flightNumber)}&price=${flight.price}&details=${encodeURIComponent(JSON.stringify({ [t('flights.departure')]: flight.departureAirport?.city + ' (' + flight.departureAirport?.code + ')', [t('flights.arrival')]: flight.arrivalAirport?.city + ' (' + flight.arrivalAirport?.code + ')' }))}`)}
-                        >{t('flights.confirmSelection')}</Button>
+                        <div className="flex flex-col gap-3 w-full">
+                          <div className="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div className="flex flex-col items-center md:items-start mb-2 md:mb-0">
+                              <p className="font-bold text-lg text-gray-800">Hạng Phổ thông</p>
+                              <p className="text-sm text-gray-500">Balo + 7kg xách tay</p>
+                            </div>
+                            <div className="text-right flex items-center gap-4">
+                              <span className="text-xl font-bold text-red-600">{ecoTotal.toLocaleString('vi-VN')} đ</span>
+                              <Button 
+                                variant="contained" 
+                                sx={{ backgroundColor: '#006ce4', fontWeight: 'bold' }} 
+                                onClick={() => navigate(`/checkout?type=flight&name=${encodeURIComponent(flight.airline + ' ' + flight.flightNumber + tripLabelEco)}&price=${ecoTotal}&details=${encodeURIComponent(JSON.stringify({ [t('flights.departure')]: flight.departureAirport?.city + ' (' + flight.departureAirport?.code + ')', [t('flights.arrival')]: flight.arrivalAirport?.city + ' (' + flight.arrivalAirport?.code + ')' }))}`)}
+                              >CHỌN</Button>
+                            </div>
+                          </div>
+                          <div className="flex flex-col md:flex-row justify-between items-center bg-blue-50 p-3 rounded-lg border border-blue-200">
+                            <div className="flex flex-col items-center md:items-start mb-2 md:mb-0">
+                              <p className="font-bold text-lg text-blue-800">Hạng Thương gia</p>
+                              <p className="text-sm text-blue-600">32kg ký gửi + Phòng chờ Business</p>
+                            </div>
+                            <div className="text-right flex items-center gap-4">
+                              <span className="text-xl font-bold text-red-600">{bizTotal.toLocaleString('vi-VN')} đ</span>
+                              <Button 
+                                variant="contained" 
+                                sx={{ backgroundColor: '#003b95', fontWeight: 'bold' }} 
+                                onClick={() => navigate(`/checkout?type=flight&name=${encodeURIComponent(flight.airline + ' ' + flight.flightNumber + tripLabelBiz)}&price=${bizTotal}&details=${encodeURIComponent(JSON.stringify({ [t('flights.departure')]: flight.departureAirport?.city + ' (' + flight.departureAirport?.code + ')', [t('flights.arrival')]: flight.arrivalAirport?.city + ' (' + flight.arrivalAirport?.code + ')' }))}`)}
+                              >CHỌN</Button>
+                            </div>
+                          </div>
+                        </div>
                       }
                     />
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         )}

@@ -35,8 +35,9 @@ public class CarController {
     @GetMapping("/search")
     public List<Car> searchCars(
             @RequestParam String pickupCity,
+            @RequestParam(required = false) String dropoffCity,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime pickupTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dropoffTime) {
-        return carService.searchCars(pickupCity, pickupTime, dropoffTime);
+        return carService.searchCars(pickupCity, dropoffCity, pickupTime, dropoffTime);
     }
 }

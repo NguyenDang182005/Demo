@@ -1,9 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 import DetailOverlay from './DetailOverlay';
 
-const HotelCard = ({ hotel }) => {
+const HotelCard = ({ hotel, checkIn, checkOut, adults = 2, children = 0, rooms = 1 }) => {
     const navigate = useNavigate();
+    
+    // Tính toán số đêm, tối thiểu là 1
+    const nights = (checkIn && checkOut) ? Math.max(1, dayjs(checkOut).diff(dayjs(checkIn), 'day')) : 1;
+    
+    // Lấy giá cơ bản (xử lý chuỗi có dấu phân cách hoặc chữ)
+    const basePrice = Number(String(hotel.price).replace(/[^0-9]/g, '')) || 0;
+    const totalPrice = basePrice * nights * rooms;
+    const formattedTotal = totalPrice.toLocaleString('vi-VN');
     return (
         <div className="border border-gray-300 rounded-lg p-4 flex flex-col md:flex-row gap-4 hover:shadow-md transition-shadow bg-white">
             {/* Ảnh bên trái */}
@@ -46,8 +55,8 @@ const HotelCard = ({ hotel }) => {
                     <span className="bg-[#febb02] text-[10px] font-bold px-2 py-0.5 rounded-sm mb-1">
                         Ưu đãi giá hời
                     </span>
-                    <p className="text-[11px] text-gray-500">1 đêm, 2 người lớn</p>
-                    <p className="text-2xl font-bold text-gray-900">VND {hotel.price}</p>
+                    <p className="text-[11px] text-gray-500">{nights} đêm, {adults} người lớn{children > 0 ? `, ${children} trẻ em` : ''}{rooms > 1 ? `, ${rooms} phòng` : ''}</p>
+                    <p className="text-2xl font-bold text-gray-900">VND {formattedTotal}</p>
                     <p className="text-[10px] text-gray-500 mb-2">Đã bao gồm thuế và phí</p>
                     <DetailOverlay 
                         trigger={
@@ -88,9 +97,9 @@ const HotelCard = ({ hotel }) => {
                         }
                         footer={
                             <div className="flex flex-col items-end">
-                                <p className="text-xl font-bold text-gray-900 mb-1">VND {hotel.price}</p>
+                                <p className="text-xl font-bold text-gray-900 mb-1">VND {formattedTotal}</p>
                                 <button
-                                  onClick={() => navigate(`/checkout?type=hotel&name=${encodeURIComponent(hotel.name)}&price=${String(hotel.price).replace(/[^0-9]/g, '') || 0}&details=${encodeURIComponent(JSON.stringify({ 'Địa chỉ': hotel.location, 'Đánh giá': hotel.rating }))}`)}
+                                  onClick={() => navigate(`/checkout?type=hotel&name=${encodeURIComponent(hotel.name)}&price=${totalPrice}&details=${encodeURIComponent(JSON.stringify({ 'Địa chỉ': hotel.location, 'Đánh giá': hotel.rating, 'Thời gian ở': `${nights} đêm (${checkIn || 'Nay'} - ${checkOut || 'Mai'})`, 'Số phòng': rooms }))}`)}
                                   className="bg-[#006ce4] text-white px-8 py-2 rounded-md font-bold hover:bg-[#003b95] transition"
                                 >Đặt ngay</button>
                             </div>

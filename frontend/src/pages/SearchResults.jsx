@@ -13,6 +13,9 @@ const SearchResults = () => {
     const city = searchParams.get('city') || '';
     const checkIn = searchParams.get('checkIn') || '';
     const checkOut = searchParams.get('checkOut') || '';
+    const adults = parseInt(searchParams.get('adults')) || 2;
+    const children = parseInt(searchParams.get('children')) || 0;
+    const rooms = parseInt(searchParams.get('rooms')) || 1;
 
     useEffect(() => {
         const fetchHotels = async () => {
@@ -85,7 +88,15 @@ const SearchResults = () => {
                             <div className="text-center py-20 text-gray-500">Không tìm thấy chỗ nghỉ nào tại {city}.</div>
                         ) : (
                             hotels.map(hotel => (
-                                <HotelCard key={hotel.id} hotel={hotel} />
+                                <HotelCard 
+                                    key={hotel.id} 
+                                    hotel={hotel} 
+                                    checkIn={checkIn}
+                                    checkOut={checkOut}
+                                    adults={adults}
+                                    children={children}
+                                    rooms={rooms}
+                                />
                             ))
                         )}
                     </div>

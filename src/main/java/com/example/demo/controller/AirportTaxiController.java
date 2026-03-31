@@ -22,8 +22,9 @@ public class AirportTaxiController {
 
     @GetMapping("/search")
     public List<AirportTaxi> searchTaxis(
-            @RequestParam String airportCode,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String airportCode,
             @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime pickupTime) {
-        return airportTaxiService.searchTaxisByAirport(airportCode, pickupTime);
+        return airportTaxiService.searchTaxis(city, airportCode, pickupTime);
     }
 }

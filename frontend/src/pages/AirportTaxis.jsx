@@ -13,6 +13,7 @@ const AirportTaxis = () => {
   const disabledDate = (current) => current && current < dayjs().startOf('day');
 
   const [airportCode, setAirportCode] = useState('');
+  const [pickupCity, setPickupCity] = useState('');
   const [date, setDate] = useState(null);
   const [time, setTime] = useState(null);
   const [results, setResults] = useState([]);
@@ -43,13 +44,13 @@ const AirportTaxis = () => {
   }, []);
 
   const handleSearch = async () => {
-    if (!airportCode) {
-      message.warning(t('common.pleaseSelectAirport') || "Vui lòng nhập sân bay hoặc mã sân bay");
+    if (!pickupCity) {
+      message.warning(t('common.pleaseSelectCity') || "Vui lòng nhập thành phố");
       return;
     }
     setLoading(true);
     try {
-      const params = { airportCode: airportCode };
+      const params = { city: pickupCity };
       if (date && time) {
         const pickupDatetime = date.hour(time.hour()).minute(time.minute()).second(0);
         params.pickupTime = pickupDatetime.format('YYYY-MM-DDTHH:mm:ss');
@@ -57,7 +58,22 @@ const AirportTaxis = () => {
       const response = await axios.get(`/api/airport-taxis/search`, {
         params: params
       });
-      setResults(response.data);
+
+      // Logic tinh gia: neu co destination thi + 200k phi di chuyen
+      const processedResults = response.data.map(taxi => {
+        let transferFee = 0;
+        if (destination && destination.trim().length > 0) {
+          transferFee = 200000;
+        }
+        return {
+          ...taxi,
+          transferFee,
+          totalPrice: taxi.basePrice + transferFee,
+          destination: destination || t('airportTaxis.center') || "Trung tâm thành phố"
+        };
+      });
+
+      setResults(processedResults);
     } catch (error) {
       console.error("Error fetching taxis", error);
     } finally {
@@ -93,16 +109,17 @@ const AirportTaxis = () => {
               <div className="md:col-span-4 border rounded-lg p-2 flex items-center gap-2 bg-white">
                 <i className="fa-solid fa-plane-arrival text-gray-400 ml-2"></i>
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase line-clamp-1">{t('airportTaxis.pickupLocation')}</span>
-                  <Select
-                    showSearch
-                    placeholder={t('airportTaxis.pickupPlaceholder')}
+                  <span className="text-[10px] font-bold text-gray-400 uppercase line-clamp-1">{t('airportTaxis.pickupCity')}</span>
+                  <AutoComplete
+                    options={cities.map(city => ({ value: city }))}
+                    filterOption={(inputValue, option) =>
+                        option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                    }
+                    placeholder={t('airportTaxis.pickupCityPlaceholder')}
                     variant="borderless"
                     className="w-full text-sm"
-                    value={airportCode || undefined}
-                    onChange={(val) => setAirportCode(val)}
-                    filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                    options={airports.map(a => ({ value: a.code, label: `${a.city} (${a.code})` }))}
+                    value={pickupCity}
+                    onChange={(val) => setPickupCity(val)}
                   />
                 </div>
               </div>
@@ -175,8 +192,9 @@ const AirportTaxis = () => {
                   </div>
                   <div className="mt-auto pt-4 border-t border-gray-100 flex justify-between items-end">
                     <div>
-                      <span className="text-xs text-gray-500 block">{t('airportTaxis.basePrice')}</span>
-                      <span className="text-2xl font-bold text-green-600">{taxi.basePrice.toLocaleString('vi-VN')} đ</span>
+                      <span className="text-xs text-gray-500 block">{t('airportTaxis.totalPrice')}</span>
+                      <span className="text-2xl font-bold text-green-600">{taxi.totalPrice.toLocaleString('vi-VN')} đ</span>
+                      {taxi.transferFee > 0 && <span className="text-[10px] text-gray-400 block">+ {taxi.transferFee.toLocaleString('vi-VN')} đ phí địa điểm</span>}
                     </div>
                     <DetailOverlay 
                       trigger={<Button variant="contained" sx={{ backgroundColor: '#006ce4', fontWeight: 'bold' }}>{t('airportTaxis.bookPartner')}</Button>}
@@ -217,7 +235,7 @@ const AirportTaxis = () => {
                         <Button
                           variant="contained"
                           sx={{ backgroundColor: '#006ce4' }}
-                          onClick={() => navigate(`/checkout?type=taxi&name=${encodeURIComponent(taxi.carType)}&price=${taxi.basePrice}&details=${encodeURIComponent(JSON.stringify({ [t('airportTaxis.pickupPoint')]: taxi.airport?.name + ' (' + taxi.airport?.code + ')', [t('airportTaxis.city')]: taxi.airport?.city }))}`)}
+                          onClick={() => navigate(`/checkout?type=taxi&name=${encodeURIComponent(taxi.carType)}&price=${taxi.totalPrice}&details=${encodeURIComponent(JSON.stringify({ [t('airportTaxis.pickupPoint')]: taxi.airport?.name + ' (' + taxi.airport?.code + ')', [t('airportTaxis.destination')]: taxi.destination, [t('airportTaxis.city')]: taxi.airport?.city }))}`)}
                         >{t('airportTaxis.confirmBooking')}</Button>
                       }
                     />

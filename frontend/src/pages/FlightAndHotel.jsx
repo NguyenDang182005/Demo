@@ -46,6 +46,7 @@ const FlightAndHotel = () => {
   const [searching, setSearching] = useState(false);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
+  const [guests, setGuests] = useState(2);
 
   // Mock data cho packages
   const generateMockPackages = (origin, dest) => {
@@ -154,7 +155,7 @@ const FlightAndHotel = () => {
                 <GroupIcon className="text-gray-400" />
                 <div className="flex flex-col w-full">
                   <span className="text-[10px] font-bold text-gray-400 uppercase">{t('flightAndHotel.guests')}</span>
-                  <InputNumber min={1} defaultValue={2} variant="borderless" className="w-full" />
+                  <InputNumber min={1} value={guests} onChange={(val) => setGuests(val)} variant="borderless" className="w-full" />
                 </div>
               </div>
             </div>
@@ -294,10 +295,11 @@ const FlightAndHotel = () => {
                           }
                           footer={
                             <div className="flex flex-col items-end">
-                              <p className="text-sm text-gray-400 line-through">{pkg.originalPrice.toLocaleString('vi-VN')} đ</p>
-                              <p className="text-xl font-bold text-gray-900 mb-2">{pkg.packagePrice.toLocaleString('vi-VN')} đ</p>
+                              <p className="text-sm text-gray-400 line-through">{(pkg.originalPrice * guests).toLocaleString('vi-VN')} đ</p>
+                              <p className="text-xl font-bold text-gray-900 mb-2">Tổng: {(pkg.packagePrice * guests).toLocaleString('vi-VN')} đ</p>
+                              <p className="text-[10px] text-gray-500 mb-2">Cho {guests} khách</p>
                               <button
-                                onClick={() => navigate(`/checkout?type=package&name=${encodeURIComponent(pkg.hotel + ' + ' + pkg.airline)}&price=${pkg.packagePrice}&details=${encodeURIComponent(JSON.stringify({ [t('flightAndHotel.route')]: pkg.originCity + ' → ' + pkg.destCity, [t('flightAndHotel.airline')]: pkg.airline, [t('flightAndHotel.duration')]: pkg.nights + ' ' + t('flightAndHotel.nights') }))}`)}
+                                onClick={() => navigate(`/checkout?type=package&name=${encodeURIComponent(pkg.hotel + ' + ' + pkg.airline)}&price=${pkg.packagePrice * guests}&details=${encodeURIComponent(JSON.stringify({ [t('flightAndHotel.route')]: pkg.originCity + ' → ' + pkg.destCity, [t('flightAndHotel.airline')]: pkg.airline, [t('flightAndHotel.duration')]: pkg.nights + ' ' + t('flightAndHotel.nights'), 'Khách': guests }))}`)}
                                 className="bg-[#006ce4] text-white px-8 py-2.5 rounded-md font-bold hover:bg-[#003b95] transition"
                               >
                                 {t('flightAndHotel.bookPackage')}
