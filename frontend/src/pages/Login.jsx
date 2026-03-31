@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 
 const Login = () => {
-    const [email, setEmail] = useState('');
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const [email, setEmail] = useState(location.state?.registeredEmail || '');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-
-    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -21,8 +22,8 @@ const Login = () => {
                 password
             });
 
-            // Lưu token vào localStorage
             localStorage.setItem('booking_token', response.data.token);
+            localStorage.setItem('booking_user_id', response.data.id);
             localStorage.setItem('booking_user', response.data.email);
             localStorage.setItem('booking_name', response.data.fullName || response.data.email);
             localStorage.setItem('booking_role', response.data.role);

@@ -5,22 +5,129 @@ import LockIcon from '@mui/icons-material/LockOutlined';
 import SettingsIcon from '@mui/icons-material/SettingsOutlined';
 import HistoryIcon from '@mui/icons-material/HistoryOutlined';
 import EditIcon from '@mui/icons-material/Edit';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useTranslation } from 'react-i18next';
+import { message } from 'antd';
+import api from '../services/api';
+import dayjs from 'dayjs';
 
 const Account = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('profile');
   const navigate = useNavigate();
 
-  const userName = localStorage.getItem('booking_name') || 'Guest User';
-  const userRole = localStorage.getItem('booking_role') || 'Sáng lập viên';
-  const email = 'user@example.com'; // Placeholder
+  const [userProfile, setUserProfile] = useState({
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    role: 'CUSTOMER'
+  });
+  
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem('booking_token')) {
       navigate('/login');
+      return;
     }
+    
+    const fetchUserData = async () => {
+      try {
+        const userRes = await api.get('/users/me');
+        setUserProfile(userRes.data);
+        
+        if (userRes.data && userRes.data.id) {
+          const bookingRes = await api.get(`/bookings/user/${userRes.data.id}`);
+          setBookings(bookingRes.data);
+        }
+      } catch (error) {
+        console.error("Error fetching user data", error);
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          handleLogout();
+        }
+      }
+    };
+
+    fetchUserData();
   }, [navigate]);
+
+  const handleProfileChange = (e) => {
+    setUserProfile({ ...userProfile, [e.target.name]: e.target.value });
+  };
+
+  const handlePasswordChange = (e) => {
+    setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
+  };
+
+  const saveProfile = async () => {
+    setLoading(true);
+    try {
+      await api.put('/users/me', {
+        fullName: userProfile.fullName,
+        email: userProfile.email,
+        phoneNumber: userProfile.phoneNumber
+      });
+      message.success(t('account.saveSuccess') || "Đã lưu thông tin cá nhân thành công!");
+      
+      // Kiểm tra xem email có bị đổi không so với localStorage
+      if (userProfile.email && userProfile.email !== localStorage.getItem('booking_user')) {
+          message.warning(t('account.emailChanged') || "Email đăng nhập đã được thay đổi. Hệ thống sẽ đăng xuất!");
+          setTimeout(() => {
+              handleLogout();
+          }, 2000);
+      } else {
+          // Update local storage name to reflect changes on navbar
+          localStorage.setItem('booking_name', userProfile.fullName);
+          window.dispatchEvent(new Event("storage")); // Trigger custom event if navbar listens
+      }
+    } catch (err) {
+      console.error(err);
+      message.error(err.response?.data || t('account.saveFailure') || "Lỗi khi lưu thông tin");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const savePassword = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      message.error(t('account.passwordMismatch') || "Mật khẩu xác nhận không trùng khớp!");
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.put('/users/me/password', {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+      message.success(t('account.passwordSuccess') || "Đổi mật khẩu thành công!");
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      console.error(err);
+      message.error(err.response?.data || t('account.passwordFailure') || "Không thể đổi mật khẩu. Hãy kiểm tra lại mật khẩu hiện tại.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLanguageChange = (e) => {
+    i18n.changeLanguage(e.target.value);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('booking_token');
+    localStorage.removeItem('booking_user');
+    localStorage.removeItem('booking_name');
+    localStorage.removeItem('booking_role');
+    localStorage.removeItem('booking_user_id');
+    navigate('/login');
+  };
 
   const tabs = [
     { id: 'profile', label: t('account.profile'), icon: <PersonIcon /> },
@@ -35,21 +142,22 @@ const Account = () => {
 
         {/* Sidebar */}
         <div className="md:col-span-1">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 flex flex-col items-center border-b border-gray-100 bg-gradient-to-br from-blue-50 to-white">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full">
+            <div className="p-6 flex flex-col items-center border-b border-gray-100 bg-linear-to-br from-blue-50 to-white">
               <div className="relative group cursor-pointer mb-4">
                 <div className="w-24 h-24 rounded-full bg-booking-blue text-white flex justify-center items-center text-3xl font-bold shadow-md">
-                  {userName.charAt(0).toUpperCase()}
+                  {userProfile.fullName ? userProfile.fullName.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div className="absolute inset-0 bg-black bg-opacity-40 rounded-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <EditIcon className="text-white" />
                 </div>
               </div>
-              <h2 className="text-lg font-bold text-gray-800">{userName}</h2>
-              <p className="text-sm text-gray-500">{userRole}</p>
+              <h2 className="text-lg font-bold text-gray-800 text-center">{userProfile.fullName || 'Người dùng'}</h2>
+              <p className="text-sm text-gray-500 text-center">{userProfile.email || ''}</p>
+              <div className="mt-2 bg-blue-100 text-booking-blue text-xs font-bold px-3 py-1 rounded-full">{userProfile.role}</div>
             </div>
 
-            <nav className="p-2 space-y-1">
+            <nav className="p-2 space-y-1 grow">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -66,101 +174,167 @@ const Account = () => {
                 </button>
               ))}
             </nav>
+            <div className="p-4 border-t border-gray-100">
+                <button 
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-semibold"
+                >
+                  <ExitToAppIcon fontSize="small"/>
+                  <span>{t('account.logout') || "Đăng xuất"}</span>
+                </button>
+            </div>
           </div>
         </div>
 
         {/* Main Content */}
         <div className="md:col-span-3">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 h-full transition-all duration-300">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 min-h-[500px] transition-all duration-300">
             {activeTab === 'profile' && (
-              <div className="transition-opacity duration-500 opacity-100">
+              <div className="transition-opacity duration-500 opacity-100 animate-fade-in-up">
                 <h3 className="text-2xl font-bold text-gray-800 mb-6">{t('account.personalInfo')}</h3>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">{t('account.fullName')}</label>
-                      <input type="text" defaultValue={userName} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
-                      <input type="email" defaultValue={email} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">{t('account.phoneNumber')}</label>
-                      <input type="tel" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">{t('account.nationality')}</label>
-                      <select className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all">
-                        <option>{t('account.vietnam')}</option>
-                        <option>{t('account.usa')}</option>
-                        <option>{t('account.japan')}</option>
-                      </select>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">{t('account.fullName')}</label>
+                    <input 
+                      type="text" 
+                      name="fullName"
+                      value={userProfile.fullName || ''} 
+                      onChange={handleProfileChange}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all" 
+                    />
                   </div>
-                  <div className="pt-6 mt-6 border-t border-gray-100 flex justify-end">
-                    <button className="bg-booking-blue hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors shadow-sm focus:ring-4 focus:ring-blue-100">
-                      {t('account.saveChanges')}
-                    </button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
+                    <input 
+                      type="email" 
+                      name="email"
+                      value={userProfile.email || ''} 
+                      onChange={handleProfileChange}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">{t('account.phoneNumber')}</label>
+                    <input 
+                      type="tel" 
+                      name="phoneNumber"
+                      value={userProfile.phoneNumber || ''} 
+                      onChange={handleProfileChange}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all" 
+                    />
                   </div>
                 </div>
-              </div>
-            )}
-
-            {activeTab === 'bookings' && (
-              <div className="transition-opacity duration-500 opacity-100">
-                <h3 className="text-2xl font-bold text-gray-800 mb-6">{t('account.bookings')}</h3>
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6 shadow-sm">
-                    <HistoryIcon className="text-booking-blue" style={{ fontSize: 40 }} />
-                  </div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">{t('account.noTripsYet')}</h4>
-                  <p className="text-gray-500 max-w-md mb-8 leading-relaxed">{t('account.noTripsDesc')}</p>
-                  <button onClick={() => navigate('/')} className="px-6 py-3 bg-booking-blue text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-sm focus:ring-4 focus:ring-blue-100">
-                    {t('account.startSearching')}
+                <div className="pt-6 mt-6 border-t border-gray-100 flex justify-end">
+                  <button 
+                    onClick={saveProfile}
+                    disabled={loading}
+                    className="bg-booking-blue hover:bg-blue-700 text-white px-8 py-2.5 rounded-xl font-medium transition-colors shadow-sm focus:ring-4 focus:ring-blue-100 disabled:opacity-70"
+                  >
+                    {loading ? 'Đang lưu...' : t('account.saveChanges')}
                   </button>
                 </div>
               </div>
             )}
 
+            {activeTab === 'bookings' && (
+              <div className="transition-opacity duration-500 opacity-100 animate-fade-in-up">
+                <h3 className="text-2xl font-bold text-gray-800 mb-6">{t('account.bookings')}</h3>
+                
+                {bookings.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                        <HistoryIcon className="text-booking-blue" style={{ fontSize: 40 }} />
+                      </div>
+                      <h4 className="text-xl font-bold text-gray-900 mb-2">{t('account.noTripsYet')}</h4>
+                      <p className="text-gray-500 max-w-md mb-8 leading-relaxed">{t('account.noTripsDesc')}</p>
+                      <button onClick={() => navigate('/')} className="px-6 py-3 bg-booking-blue text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-sm focus:ring-4 focus:ring-blue-100">
+                        {t('account.startSearching')}
+                      </button>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {bookings.map(book => (
+                            <div key={book.id} className="border border-gray-200 p-5 rounded-xl hover:shadow-md transition bg-white flex flex-col md:flex-row justify-between md:items-center gap-4">
+                                <div>
+                                    <span className="bg-blue-100 text-booking-blue text-xs font-bold px-2 py-1 uppercase rounded tracking-wider mb-2 inline-block">Mã Đặt #{book.id}</span>
+                                    <h4 className="font-bold text-lg text-gray-800">{book.serviceType === 'FLIGHT' ? 'Vé Máy Bay' : book.serviceType === 'HOTEL' ? 'Khách Sạn' : book.serviceType}</h4>
+                                    <p className="text-sm text-gray-500 mt-1">Trạng thái: <strong className={book.status === 'CONFIRMED' ? 'text-green-600' : 'text-gray-600'}>{book.status}</strong></p>
+                                </div>
+                                <div className="md:text-right">
+                                    <div className="text-xl font-extrabold text-booking-blue">{book.totalPrice?.toLocaleString('vi-VN')} VND</div>
+                                    <p className="text-xs text-gray-400 mt-1">Ngày đặt: {dayjs(book.bookingDate).format('DD/MM/YYYY HH:mm')}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+              </div>
+            )}
+
             {activeTab === 'security' && (
-              <div className="transition-opacity duration-500 opacity-100">
+              <div className="transition-opacity duration-500 opacity-100 animate-fade-in-up">
                 <h3 className="text-2xl font-bold text-gray-800 mb-6">{t('account.accountSecurity')}</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-5 border border-gray-100 rounded-2xl hover:border-gray-200 hover:shadow-sm transition-all bg-white">
-                    <div>
-                      <h4 className="font-bold text-gray-800 mb-1">{t('account.password')}</h4>
-                      <p className="text-sm text-gray-500">{t('account.passwordDesc')}</p>
-                    </div>
-                    <button className="text-booking-blue font-bold px-5 py-2.5 rounded-xl border border-blue-100 hover:bg-blue-50 transition-colors whitespace-nowrap ml-4">{t('account.changePassword')}</button>
+                <div className="space-y-6 max-w-md">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Mật khẩu hiện tại</label>
+                    <input 
+                      type="password" 
+                      name="currentPassword"
+                      value={passwordData.currentPassword}
+                      onChange={handlePasswordChange}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all" 
+                    />
                   </div>
-                  <div className="flex justify-between items-center p-5 border border-gray-100 rounded-2xl hover:border-gray-200 hover:shadow-sm transition-all bg-white">
-                    <div>
-                      <h4 className="font-bold text-gray-800 mb-1">{t('account.twoFactor')}</h4>
-                      <p className="text-sm text-gray-500">{t('account.twoFactorDesc')}</p>
-                    </div>
-                    <button className="text-booking-blue font-bold px-5 py-2.5 rounded-xl border border-blue-100 hover:bg-blue-50 transition-colors whitespace-nowrap ml-4">{t('account.setupTwoFactor')}</button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Mật khẩu mới</label>
+                    <input 
+                      type="password" 
+                      name="newPassword"
+                      value={passwordData.newPassword}
+                      onChange={handlePasswordChange}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all" 
+                    />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Xác nhận mật khẩu mới</label>
+                    <input 
+                      type="password" 
+                      name="confirmPassword"
+                      value={passwordData.confirmPassword}
+                      onChange={handlePasswordChange}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all" 
+                    />
+                  </div>
+                  <button 
+                    onClick={savePassword}
+                    disabled={loading || !passwordData.currentPassword || !passwordData.newPassword}
+                    className="w-full bg-booking-blue hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors shadow-sm focus:ring-4 focus:ring-blue-100 disabled:opacity-70"
+                  >
+                    {loading ? 'Đang cập nhật...' : (t('account.changePassword') || "Đổi mật khẩu")}
+                  </button>
                 </div>
               </div>
             )}
 
             {activeTab === 'settings' && (
-              <div className="transition-opacity duration-500 opacity-100">
+              <div className="transition-opacity duration-500 opacity-100 animate-fade-in-up">
                 <h3 className="text-2xl font-bold text-gray-800 mb-6">{t('account.appSettings')}</h3>
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">{t('account.language')}</label>
-                    <select className="w-full md:w-1/2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all">
-                      <option>Tiếng Việt</option>
-                      <option>English (US)</option>
+                    <select 
+                        className="w-full md:w-1/2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all"
+                        value={i18n.language}
+                        onChange={handleLanguageChange}
+                    >
+                      <option value="vi">Tiếng Việt</option>
+                      <option value="en">English (US)</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">{t('account.currency')}</label>
                     <select className="w-full md:w-1/2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-booking-blue outline-none transition-all">
                       <option>VND - Đồng Việt Nam</option>
-                      <option>USD - US Dollar</option>
                     </select>
                   </div>
                 </div>

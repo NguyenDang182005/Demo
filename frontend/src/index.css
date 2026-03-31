@@ -58,7 +58,7 @@ body {
 .ant-select-selection-item, 
 .ant-select-selection-placeholder,
 .ant-picker-input > input {
-  @apply !truncate !max-w-full !block;
+  @apply truncate! max-w-full! block!;
 }
 
 /* Fix flex containers from blowing out their bounds */
@@ -73,7 +73,7 @@ body {
 }
 
 .ant-picker-input > input {
-  @apply !text-sm md:!text-base;
+  @apply text-sm! md:text-base!;
 }
 
 .ant-select-selection-placeholder,
@@ -89,5 +89,5 @@ body {
 }
 
 .custom-home-autocomplete .ant-select-selector {
-  @apply !px-0;
+  @apply px-0!;
 }

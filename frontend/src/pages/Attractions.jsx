@@ -89,8 +89,8 @@ const Attractions = () => {
             <div className="w-full flex flex-col items-center bg-gray-50 min-h-screen text-black">
 
                 {/* Banner */}
-        <div className="bg-gradient-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-12 pb-24 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+        <div className="bg-linear-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-12 pb-24 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
             <div className="max-w-6xl mx-auto relative z-10 animate-fade-in-up">
                 <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">{t('attractions.heroTitle')}</h1>
                 <p className="text-xl md:text-2xl text-blue-100 font-medium drop-shadow-sm">{t('attractions.heroSubtitle')}</p>
@@ -196,7 +196,7 @@ const Attractions = () => {
                                                         e.target.src = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500';
                                                     }}
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                                                <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent"></div>
                                                 {/* Category badge */}
                                                 {attraction.category && (
                                                     <span className={`absolute top-3 left-3 ${catColor.bg} ${catColor.text} text-xs font-bold px-3 py-1 rounded-full shadow-sm backdrop-blur-sm`}>
@@ -321,7 +321,7 @@ const Attractions = () => {
                                 className="col-span-1 md:col-span-3 rounded-xl overflow-hidden relative cursor-pointer group h-64 shadow-md"
                             >
                                 <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800" alt="Hạ Long" className="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
-                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-white">
+                                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 p-4 text-white">
                                     <h3 className="font-bold text-2xl">{t('attractions.halong')}</h3>
                                     <p className="text-sm opacity-90">{t('attractions.halongDesc')}</p>
                                 </div>
@@ -333,7 +333,7 @@ const Attractions = () => {
                                 className="col-span-1 md:col-span-3 rounded-xl overflow-hidden relative cursor-pointer group h-64 shadow-md"
                             >
                                 <img src="https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=800" alt="Hội An" className="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
-                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-white">
+                                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 p-4 text-white">
                                     <h3 className="font-bold text-2xl">{t('attractions.hoian')}</h3>
                                     <p className="text-sm opacity-90">{t('attractions.hoianDesc')}</p>
                                 </div>
@@ -345,7 +345,7 @@ const Attractions = () => {
                                 className="col-span-1 md:col-span-2 rounded-xl overflow-hidden relative cursor-pointer group h-64 shadow-md"
                             >
                                 <img src="https://images.unsplash.com/photo-1599708153386-62e200ec806f?w=800" className="w-full h-full object-cover transition duration-300 group-hover:scale-105" alt="Huế" />
-                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-white">
+                                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 p-4 text-white">
                                     <h3 className="font-bold text-xl">{t('attractions.hue')}</h3>
                                 </div>
                             </div>
@@ -356,7 +356,7 @@ const Attractions = () => {
                                 className="col-span-1 md:col-span-2 rounded-xl overflow-hidden relative cursor-pointer group h-64 shadow-md"
                             >
                                 <img src="https://images.unsplash.com/photo-1537956965359-7573183d1f57?w=800" className="w-full h-full object-cover transition duration-300 group-hover:scale-105" alt="Phú Quốc" />
-                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-white">
+                                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 p-4 text-white">
                                     <h3 className="font-bold text-xl">{t('attractions.phuquoc')}</h3>
                                 </div>
                             </div>
@@ -367,7 +367,7 @@ const Attractions = () => {
                                 className="col-span-1 md:col-span-2 rounded-xl overflow-hidden relative cursor-pointer group h-64 shadow-md"
                             >
                                 <img src="https://images.unsplash.com/photo-1559592443-7f87a79f6527?w=800" className="w-full h-full object-cover transition duration-300 group-hover:scale-105" alt="Đà Nẵng" />
-                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4 text-white">
+                                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 p-4 text-white">
                                     <h3 className="font-bold text-xl">{t('attractions.danang')}</h3>
                                 </div>
                             </div>

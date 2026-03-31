@@ -75,8 +75,8 @@ const AirportTaxis = () => {
       <div className="w-full flex flex-col items-center bg-gray-50 min-h-screen">
 
         {/* Banner */}
-        <div className="bg-gradient-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-12 pb-24 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+        <div className="bg-linear-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-12 pb-24 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
             <div className="max-w-6xl mx-auto relative z-10 animate-fade-in-up">
                 <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">{t('airportTaxis.heroTitle')}</h1>
                 <p className="text-xl md:text-2xl text-blue-100 font-medium drop-shadow-sm">{t('airportTaxis.heroSubtitle')}</p>

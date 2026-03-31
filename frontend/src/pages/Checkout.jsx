@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { message } from 'antd';
-
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import api from '../services/api';
 const Checkout = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -16,12 +17,68 @@ const Checkout = () => {
 
   // States
   const [customerInfo, setCustomerInfo] = useState({ fullName: '', email: '', phone: '' });
-  const [paymentMethod, setPaymentMethod] = useState('card');
-  const [cardInfo, setCardInfo] = useState({ number: '', name: '', expiry: '', cvv: '' });
+  const [paymentMethod, setPaymentMethod] = useState('bank');
   const [confirmed, setConfirmed] = useState(false);
+  const [bookingCode] = useState(() => 'BK' + Date.now().toString().slice(-6));
+
+  useEffect(() => {
+    // Nếu user đã đăng nhập, tự động lấy thông tin từ DB để điền sẵn
+    const token = localStorage.getItem('booking_token');
+    if (token) {
+      api.get('/users/me')
+        .then(res => {
+          if (res.data) {
+            setCustomerInfo({
+              fullName: res.data.fullName || '',
+              email: res.data.email || '',
+              phone: res.data.phoneNumber || ''
+            });
+          }
+        })
+        .catch(err => {
+          console.error("Không thể tự động điền thông tin người dùng", err);
+        });
+    }
+  }, []);
 
   const serviceFee = Math.round(price * 0.05);
   const totalPrice = price + serviceFee;
+
+  // Xử lý tạo Order cho PayPal thông qua Backend
+  const handleCreatePaypalOrder = async (data, actions) => {
+    if (!customerInfo.fullName || !customerInfo.email || !customerInfo.phone) {
+      message.warning(t('checkout.fillRequired'));
+      throw new Error("Missing customer info");
+    }
+    try {
+      // Tính giá USD (giả định 1 USD = 25000 VND)
+      const usdPrice = (totalPrice / 25000).toFixed(2);
+      
+      const res = await api.post('/paypal/create-order', { amount: usdPrice });
+      return res.data.id; // Trả về id cho PayPal render
+    } catch (err) {
+      console.error(err);
+      message.error("Lỗi khi khởi tạo đơn hàng PayPal");
+    }
+  };
+
+  // Xử lý Capture Order khi thanh toán hoàn tất
+  const handleApprovePaypalOrder = async (data, actions) => {
+    try {
+      const res = await api.post('/paypal/capture-order', { orderId: data.orderID });
+      const captureData = res.data;
+      
+      if (captureData.status === 'COMPLETED') {
+         message.success("Thanh toán thành công qua PayPal!");
+         setConfirmed(true);
+      } else {
+         message.error("Thanh toán chưa được hoàn tất");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Lỗi khi xác nhận thanh toán");
+    }
+  };
 
   // Label cho loại dịch vụ
   const typeLabels = {
@@ -155,73 +212,7 @@ const Checkout = () => {
                 </h2>
 
                 <div className="space-y-3">
-                  {/* Thẻ tín dụng */}
-                  <label
-                    className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all
-                      ${paymentMethod === 'card' ? 'border-[#003b95] bg-blue-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
-                    onClick={() => setPaymentMethod('card')}
-                  >
-                    <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} className="accent-[#003b95] w-5 h-5" />
-                    <div className="flex-1">
-                      <p className="font-bold text-gray-900">{t('checkout.creditCard')}</p>
-                      <p className="text-xs text-gray-500">{t('checkout.creditCardDesc')}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="bg-blue-900 text-white text-[10px] font-bold px-2 py-1 rounded">VISA</span>
-                      <span className="bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded">MC</span>
-                      <span className="bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded">JCB</span>
-                    </div>
-                  </label>
-
-                  {/* Form thẻ tín dụng */}
-                  {paymentMethod === 'card' && (
-                    <div className="ml-9 p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3 animate-fade-in-up">
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1">{t('checkout.cardNumber')}</label>
-                        <input
-                          type="text" maxLength="19"
-                          value={cardInfo.number}
-                          onChange={(e) => setCardInfo({...cardInfo, number: e.target.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim()})}
-                          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="0000 0000 0000 0000"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1">{t('checkout.cardName')}</label>
-                        <input
-                          type="text"
-                          value={cardInfo.name}
-                          onChange={(e) => setCardInfo({...cardInfo, name: e.target.value.toUpperCase()})}
-                          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="NGUYEN VAN A"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-1">{t('checkout.expiry')}</label>
-                          <input
-                            type="text" maxLength="5"
-                            value={cardInfo.expiry}
-                            onChange={(e) => setCardInfo({...cardInfo, expiry: e.target.value})}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="MM/YY"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-1">CVV</label>
-                          <input
-                            type="password" maxLength="4"
-                            value={cardInfo.cvv}
-                            onChange={(e) => setCardInfo({...cardInfo, cvv: e.target.value})}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="•••"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Chuyển khoản ngân hàng */}
+                  {/* Nhóm 1: Chuyển khoản ngân hàng (VietQR) */}
                   <label
                     className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all
                       ${paymentMethod === 'bank' ? 'border-[#003b95] bg-blue-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
@@ -229,25 +220,34 @@ const Checkout = () => {
                   >
                     <input type="radio" name="payment" value="bank" checked={paymentMethod === 'bank'} onChange={() => setPaymentMethod('bank')} className="accent-[#003b95] w-5 h-5" />
                     <div className="flex-1">
-                      <p className="font-bold text-gray-900">{t('checkout.bankTransfer')}</p>
-                      <p className="text-xs text-gray-500">{t('checkout.bankTransferDesc')}</p>
+                      <p className="font-bold text-gray-900">Chuyển khoản ngân hàng (VietQR)</p>
+                      <p className="text-xs text-gray-500">Phổ biến nhất tại Việt Nam, phí thấp và tiện lợi</p>
                     </div>
-                    <i className="fa-solid fa-building-columns text-xl text-gray-400"></i>
+                    <i className="fa-solid fa-qrcode text-xl text-[#003b95]"></i>
                   </label>
 
                   {paymentMethod === 'bank' && (
-                    <div className="ml-9 p-4 bg-gray-50 rounded-lg border border-gray-200 animate-fade-in-up">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">{t('checkout.bankInfo')}</p>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <p><span className="font-medium">{t('checkout.bankName')}:</span> Vietcombank</p>
-                        <p><span className="font-medium">{t('checkout.accountNumber')}:</span> 1234 5678 9012</p>
-                        <p><span className="font-medium">{t('checkout.accountHolder')}:</span> CONG TY BOOKING CLONE</p>
-                        <p><span className="font-medium">{t('checkout.transferContent')}:</span> BK{Date.now().toString().slice(-6)}</p>
+                    <div className="ml-9 p-4 bg-gray-50 rounded-lg border border-gray-200 animate-fade-in-up flex flex-col md:flex-row gap-6 items-center">
+                      <div className="flex-1 w-full space-y-2 text-sm text-gray-700">
+                        <p className="text-base font-bold text-gray-900 mb-2">{t('checkout.bankInfo', 'Thông tin chuyển khoản')}</p>
+                        <p><span className="font-medium text-gray-500">{t('checkout.bankName', 'Ngân hàng')}:</span> Vietcombank (VCB)</p>
+                        <p><span className="font-medium text-gray-500">{t('checkout.accountNumber', 'Số tài khoản')}:</span> <span className="text-booking-blue font-bold text-base">123456789012</span></p>
+                        <p><span className="font-medium text-gray-500">{t('checkout.accountHolder', 'Chủ tài khoản')}:</span> CONG TY BOOKING CLONE</p>
+                        <p><span className="font-medium text-gray-500">{t('checkout.transferContent', 'Nội dung')}:</span> <span className="text-red-600 font-bold bg-yellow-100 px-2 py-0.5 rounded text-base inline-block">{bookingCode}</span></p>
+                        <p className="text-xs italic text-gray-500 mt-2 block border-t pt-2">* Vui lòng chuyển đúng số tiền và nội dung để hệ thống tự động đối soát xác nhận đơn hàng.</p>
+                      </div>
+                      <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-200 shrink-0">
+                        <img 
+                          src={`https://img.vietqr.io/image/vcb-123456789012-compact2.png?amount=${totalPrice}&addInfo=${bookingCode}&accountName=CONG%20TY%20BOOKING%20CLONE`} 
+                          alt="VietQR Payment" 
+                          className="w-48 h-48 object-contain"
+                        />
+                        <p className="text-xs text-center text-gray-500 mt-2 font-semibold">Quét mã qua ứng dụng ngân hàng</p>
                       </div>
                     </div>
                   )}
 
-                  {/* Ví điện tử */}
+                  {/* Nhóm 2: Ví điện tử (Momo/ZaloPay/VNPAY) */}
                   <label
                     className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all
                       ${paymentMethod === 'ewallet' ? 'border-[#003b95] bg-blue-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
@@ -255,15 +255,15 @@ const Checkout = () => {
                   >
                     <input type="radio" name="payment" value="ewallet" checked={paymentMethod === 'ewallet'} onChange={() => setPaymentMethod('ewallet')} className="accent-[#003b95] w-5 h-5" />
                     <div className="flex-1">
-                      <p className="font-bold text-gray-900">{t('checkout.eWallet')}</p>
-                      <p className="text-xs text-gray-500">{t('checkout.eWalletDesc')}</p>
+                      <p className="font-bold text-gray-900">Ví điện tử (Momo/ZaloPay/VNPAY)</p>
+                      <p className="text-xs text-gray-500">Tiện lợi cho khách dùng mobile, quét mã thanh toán ngay</p>
                     </div>
-                    <i className="fa-solid fa-wallet text-xl text-gray-400"></i>
+                    <i className="fa-solid fa-wallet text-xl text-pink-500"></i>
                   </label>
 
                   {paymentMethod === 'ewallet' && (
                     <div className="ml-9 p-4 bg-gray-50 rounded-lg border border-gray-200 animate-fade-in-up">
-                      <p className="text-sm font-semibold text-gray-700 mb-3">{t('checkout.selectWallet')}</p>
+                      <p className="text-sm font-semibold text-gray-700 mb-3">{t('checkout.selectWallet', 'Chọn ví điện tử bạn muốn sử dụng')}</p>
                       <div className="grid grid-cols-3 gap-3">
                         <button type="button" className="border-2 border-gray-200 hover:border-pink-500 p-3 rounded-xl text-center transition-all focus:border-pink-500 focus:bg-pink-50">
                           <div className="text-2xl mb-1">💳</div>
@@ -275,25 +275,48 @@ const Checkout = () => {
                         </button>
                         <button type="button" className="border-2 border-gray-200 hover:border-red-500 p-3 rounded-xl text-center transition-all focus:border-red-500 focus:bg-red-50">
                           <div className="text-2xl mb-1">🔴</div>
-                          <p className="text-xs font-bold text-gray-700">VNPay</p>
+                          <p className="text-xs font-bold text-gray-700">VNPAY</p>
                         </button>
                       </div>
                     </div>
                   )}
 
-                  {/* Thanh toán khi nhận */}
+                  {/* Nhóm 3: Thanh toán quốc tế (PayPal / Thẻ Visa, Mastercard) */}
                   <label
                     className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all
-                      ${paymentMethod === 'cod' ? 'border-[#003b95] bg-blue-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
-                    onClick={() => setPaymentMethod('cod')}
+                      ${paymentMethod === 'paypal' ? 'border-[#003b95] bg-blue-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}
+                    onClick={() => setPaymentMethod('paypal')}
                   >
-                    <input type="radio" name="payment" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="accent-[#003b95] w-5 h-5" />
+                    <input type="radio" name="payment" value="paypal" checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} className="accent-[#003b95] w-5 h-5" />
                     <div className="flex-1">
-                      <p className="font-bold text-gray-900">{t('checkout.cod')}</p>
-                      <p className="text-xs text-gray-500">{t('checkout.codDesc')}</p>
+                      <p className="font-bold text-gray-900">Thanh toán quốc tế (PayPal / Thẻ Visa, Mastercard)</p>
+                      <p className="text-xs text-gray-500">Thanh toán bảo mật toàn cầu, chấp nhận hầu hết loại thẻ</p>
                     </div>
-                    <i className="fa-solid fa-money-bill-wave text-xl text-gray-400"></i>
+                    <div className="flex gap-2 text-[#00457C]">
+                        <i className="fa-brands fa-paypal text-2xl"></i>
+                        <i className="fa-brands fa-cc-visa text-2xl"></i>
+                        <i className="fa-brands fa-cc-mastercard text-2xl"></i>
+                    </div>
                   </label>
+
+                  {paymentMethod === 'paypal' && (
+                    <div className="ml-9 p-4 bg-gray-50 rounded-lg border border-gray-200 animate-fade-in-up">
+                      <p className="text-sm font-semibold text-gray-700 mb-4">{t('checkout.paypalInstruction', 'Bạn có thể thanh toán bằng số dư PayPal hoặc thẻ Visa/Mastercard trực tiếp bên dưới:')}</p>
+                      <PayPalScriptProvider options={{ "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID || "test", currency: "USD" }}>
+                        {totalPrice > 0 ? (
+                          <PayPalButtons 
+                            createOrder={handleCreatePaypalOrder}
+                            onApprove={handleApprovePaypalOrder}
+                            style={{ layout: "vertical", shape: "rect", color: "gold" }}
+                          />
+                        ) : (
+                          <div className="p-4 bg-orange-50 border border-orange-200 text-orange-600 rounded-xl text-center text-sm font-semibold">
+                            Vui lòng chọn sản phẩm có giá trị lớn hơn 0 để thanh toán qua PayPal.
+                          </div>
+                        )}
+                      </PayPalScriptProvider>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -346,13 +369,20 @@ const Checkout = () => {
                 </div>
 
                 {/* Nút xác nhận */}
-                <button
-                  type="submit"
-                  className="w-full bg-[#006ce4] hover:bg-[#003b95] text-white font-bold py-4 rounded-xl transition-all duration-200 text-lg active:scale-[0.98] shadow-lg shadow-blue-500/20"
-                >
-                  <i className="fa-solid fa-lock mr-2"></i>
-                  {t('checkout.confirmPayment')}
-                </button>
+                {paymentMethod !== 'paypal' ? (
+                  <button
+                    type="submit"
+                    className="w-full bg-[#006ce4] hover:bg-[#003b95] text-white font-bold py-4 rounded-xl transition-all duration-200 text-lg active:scale-[0.98] shadow-lg shadow-blue-500/20"
+                  >
+                    <i className="fa-solid fa-lock mr-2"></i>
+                    {t('checkout.confirmPayment', 'Hoàn tất thanh toán')}
+                  </button>
+                ) : (
+                  <div className="w-full text-center bg-blue-50 text-[#00457C] font-semibold py-4 rounded-xl transition-all duration-200 text-sm border border-blue-200 border-dashed animate-pulse">
+                    <i className="fa-solid fa-arrow-left mr-2"></i>
+                    Bấm nút PayPal ở khung bên trái để tiến hành thanh toán
+                  </div>
+                )}
 
                 {/* Badges */}
                 <div className="mt-4 space-y-2">

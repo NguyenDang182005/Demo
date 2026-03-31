@@ -38,7 +38,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new AuthResponse(null, request.getEmail(), null, null, "Email đã tồn tại!"));
+                    .body(new AuthResponse(null, null, request.getEmail(), null, null, "Email đã tồn tại!"));
         }
 
         User user = new User();
@@ -50,7 +50,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(new AuthResponse(null, user.getEmail(), user.getFullName(), user.getRole().name(), "Đăng ký thành công!"));
+        return ResponseEntity.ok(new AuthResponse(null, user.getId(), user.getEmail(), user.getFullName(), user.getRole().name(), "Đăng ký thành công!"));
     }
 
     @PostMapping("/login")
@@ -62,11 +62,11 @@ public class AuthController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             String jwt = jwtUtil.generateToken(userDetails);
 
-            return ResponseEntity.ok(new AuthResponse(jwt, userDetails.getUsername(), userDetails.getUser().getFullName(), userDetails.getUser().getRole().name(), "Đăng nhập thành công!"));
+            return ResponseEntity.ok(new AuthResponse(jwt, userDetails.getUser().getId(), userDetails.getUsername(), userDetails.getUser().getFullName(), userDetails.getUser().getRole().name(), "Đăng nhập thành công!"));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new AuthResponse(null, request.getEmail(), null, null, "Sai email hoặc mật khẩu!"));
+                    .body(new AuthResponse(null, null, request.getEmail(), null, null, "Sai email hoặc mật khẩu!"));
         }
     }
 }

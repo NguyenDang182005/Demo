@@ -35,7 +35,7 @@ const Register = () => {
             });
 
             setTimeout(() => {
-                navigate('/login');
+                navigate('/login', { state: { registeredEmail: formData.email } });
             }, 1500);
         } catch (err) {
             setStatus({

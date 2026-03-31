@@ -67,7 +67,7 @@ const Navbar = () => {
                 <Link to="/" className="text-2xl font-bold tracking-tight">Booking.com</Link>
 
                 {/* Menu bên phải */}
-                <div className="hidden md:flex items-center space-x-2 text-sm font-semibold flex-shrink-0">
+                <div className="hidden md:flex items-center space-x-2 text-sm font-semibold shrink-0">
                     <button className="hover:bg-booking-dark p-2 rounded min-w-[45px] transition-all">{t('navbar.currency')}</button>
                     <Dropdown menu={{ items: languageItems }} trigger={['click']} placement="bottomRight">
                         <button className="hover:bg-booking-dark p-2 rounded flex items-center justify-center cursor-pointer transition-colors" title="Select Language">

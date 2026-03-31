@@ -69,9 +69,9 @@ const Home = () => {
     return (
         <main className="grow bg-gray-50 min-h-screen">
             {/* Hero Section */}
-            <div className="bg-gradient-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-16 pb-32 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
+            <div className="bg-linear-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-16 pb-32 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
                 {/* Decorative background overlay */}
-                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
                 
                 <div className="max-w-6xl mx-auto relative z-10 animate-fade-in-up">
                     <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight drop-shadow-md">
@@ -156,7 +156,7 @@ const Home = () => {
                         className="rounded-2xl overflow-hidden relative h-72 cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-300"
                     >
                         {/* Reliable image source with gradient fallback */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-gray-800 to-gray-400">
+                        <div className="absolute inset-0 bg-linear-to-tr from-gray-800 to-gray-400">
                             <img src="https://images.unsplash.com/photo-1583417311753-157d60548170?auto=format&fit=crop&q=80&w=800" 
                                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
                                  alt="Hồ Chí Minh"
@@ -166,7 +166,7 @@ const Home = () => {
                                  }}
                             />
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent transition-opacity duration-300 group-hover:opacity-90"></div>
+                        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent transition-opacity duration-300 group-hover:opacity-90"></div>
                         <div className="absolute bottom-6 left-6 right-6">
                             <h3 className="text-white text-3xl font-bold mb-1 drop-shadow-lg flex items-center group-hover:-translate-y-1 transition-transform">
                                 TP. Hồ Chí Minh
@@ -181,7 +181,7 @@ const Home = () => {
                         onClick={() => navigate('/search-results?city=Đà Lạt')}
                         className="rounded-2xl overflow-hidden relative h-72 cursor-pointer group shadow-lg hover:shadow-2xl transition-all duration-300"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-tr from-green-800 to-green-500">
+                        <div className="absolute inset-0 bg-linear-to-tr from-green-800 to-green-500">
                             <img src="https://images.unsplash.com/photo-1629739572627-8adbc7d3ecae?auto=format&fit=crop&q=80&w=800" 
                                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
                                  alt="Đà Lạt"
@@ -191,7 +191,7 @@ const Home = () => {
                                  }}
                             />
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent transition-opacity duration-300 group-hover:opacity-90"></div>
+                        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent transition-opacity duration-300 group-hover:opacity-90"></div>
                         <div className="absolute bottom-6 left-6 right-6">
                             <h3 className="text-white text-3xl font-bold mb-1 drop-shadow-lg flex items-center group-hover:-translate-y-1 transition-transform">
                                 Đà Lạt

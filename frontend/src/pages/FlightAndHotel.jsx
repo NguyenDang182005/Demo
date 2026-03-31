@@ -97,8 +97,8 @@ const FlightAndHotel = () => {
       <div className="w-full flex flex-col items-center bg-gray-50 min-h-screen">
         
         {/* Banner Đặc trưng cho Packages */}
-        <div className="bg-gradient-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-12 pb-24 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+        <div className="bg-linear-to-br from-booking-blue via-blue-800 to-indigo-900 text-white relative w-full pt-12 pb-24 px-4 sm:px-6 lg:px-8 shadow-inner overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
             <div className="max-w-6xl mx-auto relative z-10 animate-fade-in-up">
                 <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight drop-shadow-md">{t('flightAndHotel.heroTitle')}</h1>
                 <p className="text-xl md:text-2xl text-blue-100 font-medium drop-shadow-sm">{t('flightAndHotel.heroSubtitle')}</p>
@@ -198,7 +198,7 @@ const FlightAndHotel = () => {
                     {/* Image */}
                     <div className="relative h-48 overflow-hidden">
                       <img src={pkg.hotelImg} alt={pkg.hotel} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                      <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
                       <span className="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
                         <i className="fa-solid fa-tag mr-1"></i> {t('flightAndHotel.save')} {pkg.savings}%
                       </span>
