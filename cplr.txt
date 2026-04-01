@@ -1,0 +1,39 @@
+Compiled from "CreatePaymentLinkRequest.java"
+public class vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest {
+  public static vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest$CreatePaymentLinkRequestBuilder builder();
+  public java.lang.Long getOrderCode();
+  public java.lang.Long getAmount();
+  public java.lang.String getDescription();
+  public java.lang.String getCancelUrl();
+  public java.lang.String getReturnUrl();
+  public java.lang.String getSignature();
+  public java.util.List<vn.payos.model.v2.paymentRequests.PaymentLinkItem> getItems();
+  public java.lang.String getBuyerName();
+  public java.lang.String getBuyerCompanyName();
+  public java.lang.String getBuyerTaxCode();
+  public java.lang.String getBuyerEmail();
+  public java.lang.String getBuyerPhone();
+  public java.lang.String getBuyerAddress();
+  public vn.payos.model.v2.paymentRequests.InvoiceRequest getInvoice();
+  public java.lang.Long getExpiredAt();
+  public void setOrderCode(java.lang.Long);
+  public void setAmount(java.lang.Long);
+  public void setDescription(java.lang.String);
+  public void setCancelUrl(java.lang.String);
+  public void setReturnUrl(java.lang.String);
+  public void setSignature(java.lang.String);
+  public void setItems(java.util.List<vn.payos.model.v2.paymentRequests.PaymentLinkItem>);
+  public void setBuyerName(java.lang.String);
+  public void setBuyerCompanyName(java.lang.String);
+  public void setBuyerTaxCode(java.lang.String);
+  public void setBuyerEmail(java.lang.String);
+  public void setBuyerPhone(java.lang.String);
+  public void setBuyerAddress(java.lang.String);
+  public void setInvoice(vn.payos.model.v2.paymentRequests.InvoiceRequest);
+  public void setExpiredAt(java.lang.Long);
+  public boolean equals(java.lang.Object);
+  public int hashCode();
+  public java.lang.String toString();
+  public vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest();
+  public vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest(java.lang.Long, java.lang.Long, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.List<vn.payos.model.v2.paymentRequests.PaymentLinkItem>, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, vn.payos.model.v2.paymentRequests.InvoiceRequest, java.lang.Long);
+}

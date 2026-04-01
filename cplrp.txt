@@ -1,0 +1,33 @@
+Compiled from "CreatePaymentLinkResponse.java"
+public class vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse {
+  public static vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse$CreatePaymentLinkResponseBuilder builder();
+  public java.lang.String getBin();
+  public java.lang.String getAccountNumber();
+  public java.lang.String getAccountName();
+  public java.lang.Long getAmount();
+  public java.lang.String getDescription();
+  public java.lang.Long getOrderCode();
+  public java.lang.String getCurrency();
+  public java.lang.String getPaymentLinkId();
+  public vn.payos.model.v2.paymentRequests.PaymentLinkStatus getStatus();
+  public java.lang.Long getExpiredAt();
+  public java.lang.String getCheckoutUrl();
+  public java.lang.String getQrCode();
+  public void setBin(java.lang.String);
+  public void setAccountNumber(java.lang.String);
+  public void setAccountName(java.lang.String);
+  public void setAmount(java.lang.Long);
+  public void setDescription(java.lang.String);
+  public void setOrderCode(java.lang.Long);
+  public void setCurrency(java.lang.String);
+  public void setPaymentLinkId(java.lang.String);
+  public void setStatus(vn.payos.model.v2.paymentRequests.PaymentLinkStatus);
+  public void setExpiredAt(java.lang.Long);
+  public void setCheckoutUrl(java.lang.String);
+  public void setQrCode(java.lang.String);
+  public boolean equals(java.lang.Object);
+  public int hashCode();
+  public java.lang.String toString();
+  public vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse();
+  public vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse(java.lang.String, java.lang.String, java.lang.String, java.lang.Long, java.lang.String, java.lang.Long, java.lang.String, java.lang.String, vn.payos.model.v2.paymentRequests.PaymentLinkStatus, java.lang.Long, java.lang.String, java.lang.String);
+}

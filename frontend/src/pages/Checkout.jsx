@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { message } from 'antd';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
@@ -7,6 +7,7 @@ import api from '../services/api';
 const Checkout = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   // Lấy thông tin từ query params
@@ -17,29 +18,61 @@ const Checkout = () => {
 
   // States
   const [customerInfo, setCustomerInfo] = useState({ fullName: '', email: '', phone: '' });
+  const [userId, setUserId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('bank');
-  const [confirmed, setConfirmed] = useState(false);
-  const [bookingCode] = useState(() => 'BK' + Date.now().toString().slice(-6));
+  const [selectedWallet, setSelectedWallet] = useState('momo');
+  
+  // Đọc cờ status do PayOS truyền về sau khi redirect
+  const statusParam = searchParams.get('status');
+  const [orderStatus, setOrderStatus] = useState(statusParam === 'success' ? 'completed' : 'idle'); // 'idle', 'processing', 'completed'
+  const [bookingCode] = useState(() => 'BK' + Date.now().toString().slice(-8) + Math.random().toString(36).substring(2, 5).toUpperCase());
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(900); // 15 phút
 
   useEffect(() => {
-    // Nếu user đã đăng nhập, tự động lấy thông tin từ DB để điền sẵn
-    const token = localStorage.getItem('booking_token');
-    if (token) {
-      api.get('/users/me')
-        .then(res => {
-          if (res.data) {
-            setCustomerInfo({
-              fullName: res.data.fullName || '',
-              email: res.data.email || '',
-              phone: res.data.phoneNumber || ''
-            });
-          }
-        })
-        .catch(err => {
-          console.error("Không thể tự động điền thông tin người dùng", err);
-        });
+     if (statusParam === 'cancel') {
+         message.warning('Thanh toán đã bị hủy.');
+     }
+  }, [statusParam]);
+
+  useEffect(() => {
+    if (!showQrModal) return;
+    if (timeLeft <= 0) {
+      setShowQrModal(false);
+      setOrderStatus('idle');
+      message.error("Hết thời gian thanh toán mã QR!");
+      return;
     }
-  }, []);
+    const timerId = setInterval(() => setTimeLeft((t) => t - 1), 1000);
+    return () => clearInterval(timerId);
+  }, [showQrModal, timeLeft]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('booking_token');
+    
+    // Nếu chưa đăng nhập, chuyển hướng sang /login và lưu lại đường dẫn hiện tại để quay lại
+    if (!token) {
+      message.warning('Vui lòng đăng nhập để tiếp tục đặt chỗ.');
+      navigate('/login', { state: { from: location } });
+      return; // Không gọi API bên dưới nếu không có token
+    }
+
+    // Nếu user đã đăng nhập, tự động lấy thông tin từ DB để điền sẵn
+    api.get('/users/me')
+      .then(res => {
+        if (res.data) {
+          setUserId(res.data.id);
+          setCustomerInfo({
+            fullName: res.data.fullName || '',
+            email: res.data.email || '',
+            phone: res.data.phoneNumber || ''
+          });
+        }
+      })
+      .catch(err => {
+        console.error("Không thể tự động điền thông tin người dùng", err);
+      });
+  }, [navigate, location]);
 
   const serviceFee = Math.round(price * 0.05);
   const totalPrice = price + serviceFee;
@@ -70,7 +103,7 @@ const Checkout = () => {
       
       if (captureData.status === 'COMPLETED') {
          message.success("Thanh toán thành công qua PayPal!");
-         setConfirmed(true);
+         setOrderStatus('completed');
       } else {
          message.error("Thanh toán chưa được hoàn tất");
       }
@@ -100,44 +133,129 @@ const Checkout = () => {
     package: 'fa-solid fa-suitcase-rolling',
   };
 
-  const handleConfirm = (e) => {
+  // Logic Polling kiểm tra trạng thái thanh toán
+  useEffect(() => {
+    if (!showQrModal) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await api.get(`/bookings/status/${bookingCode}`);
+        // Nếu Backend báo đã xác nhận hoặc hoàn tất
+        if (res.data === 'CONFIRMED' || res.data === 'COMPLETED') {
+          clearInterval(pollInterval);
+          setShowQrModal(false);
+          setOrderStatus('completed');
+          message.success(t('checkout.paymentSuccess', 'Hệ thống đã nhận được tiền. Cảm ơn bạn!'));
+        }
+      } catch (err) {
+        console.error("Lỗi khi polling trạng thái đơn hàng:", err);
+      }
+    }, 3000); // Mỗi 3 giây hỏi 1 lần
+
+    return () => clearInterval(pollInterval);
+  }, [showQrModal, bookingCode, t]);
+
+  const handleConfirm = async (e) => {
     e.preventDefault();
     if (!customerInfo.fullName || !customerInfo.email || !customerInfo.phone) {
       message.warning(t('checkout.fillRequired'));
       return;
     }
-    setConfirmed(true);
+    
+    setOrderStatus('processing');
+
+    try {
+      // MAP loại dịch vụ sang ENUM Backend (BookingType)
+      const typeMap = {
+         'hotel': 'HOTEL',
+         'flight': 'FLIGHT',
+         'car-rentals': 'CAR_RENTAL',
+         'attractions': 'ATTRACTION',
+         'airport-taxis': 'TAXI',
+         'flight-hotel': 'COMBO'
+      };
+
+      // 1. Lưu đơn hàng thật vào database
+      const bookingPayload = {
+         user: userId ? { id: userId } : null, 
+         bookingType: typeMap[type] || 'HOTEL',
+         totalPrice: totalPrice,
+         bookingCode: bookingCode,
+         status: 'PENDING'
+      };
+
+      await api.post('/bookings', bookingPayload);
+
+      // Nếu là thanh toán ví điện tử, hiển thị Modal quét mã đặc chế
+      if (paymentMethod === 'ewallet') {
+          setShowQrModal(true);
+          return;
+      }
+
+      // 2. Gọi PayOS để lấy link thanh toán thật (Dành cho Bank Transfer)
+      const payosRes = await api.post('/payment/create-link', {
+          bookingCode: bookingCode,
+          amount: totalPrice
+      });
+
+      if (payosRes.data && payosRes.data.checkoutUrl) {
+          window.location.href = payosRes.data.checkoutUrl;
+      }
+      
+    } catch (err) {
+      console.error("Lỗi khi tạo giao dịch PayOS:", err);
+      message.error("Không thể kết nối với cổng thanh toán PayOS. Vui lòng thử lại sau.");
+      setOrderStatus('idle');
+    }
+  };
+
+  const handleQrScanned = () => {
+     setShowQrModal(false);
+     setOrderStatus('processing');
+     setTimeout(() => {
+        setOrderStatus('completed');
+     }, 2000);
   };
 
   // Trang xác nhận thành công
-  if (confirmed) {
+  if (orderStatus === 'completed') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 max-w-lg w-full text-center animate-fade-in-up">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 max-w-lg w-full text-center animate-fade-in-up border-t-8 border-green-500">
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-green-100">
             <i className="fa-solid fa-check text-green-600 text-3xl"></i>
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-3">{t('checkout.successTitle')}</h1>
-          <p className="text-gray-500 mb-6">{t('checkout.successDesc')}</p>
-          <div className="bg-gray-50 rounded-xl p-5 mb-6 text-left space-y-2">
-            <div className="flex justify-between text-sm">
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-3 text-balance">
+             {t('checkout.successTitle', 'Đặt chỗ thành công!')}
+          </h1>
+          <p className="text-gray-500 mb-6 text-sm md:text-base">
+             {t('checkout.successDesc', 'Thanh toán hoàn tất. Cảm ơn bạn đã sử dụng dịch vụ!')}
+          </p>
+          <div className="bg-gray-50 rounded-xl p-5 mb-6 text-left space-y-3">
+            <div className="flex justify-between text-sm border-b border-gray-200 pb-2">
               <span className="text-gray-500">{t('checkout.orderCode')}</span>
-              <span className="font-bold text-gray-900">BK{Date.now().toString().slice(-8)}</span>
+              <span className="font-bold text-gray-900">{searchParams.get('bookingCode') || bookingCode}</span>
             </div>
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-sm border-b border-gray-200 pb-2">
               <span className="text-gray-500">{t('checkout.service')}</span>
-              <span className="font-semibold">{name}</span>
+              <span className="font-semibold text-right truncate max-w-[60%]">{name}</span>
             </div>
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-base border-b border-gray-200 pb-2">
               <span className="text-gray-500">{t('checkout.totalAmount')}</span>
               <span className="font-bold text-green-600">{totalPrice.toLocaleString('vi-VN')} đ</span>
+            </div>
+            <div className="flex justify-between text-sm font-semibold">
+              <span className="text-gray-500">Trạng thái:</span>
+              <span className="text-green-600">
+                 Đã thanh toán (Xác nhận 100%)
+              </span>
             </div>
           </div>
           <button
             onClick={() => navigate('/')}
-            className="bg-[#003b95] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#002d73] transition-all w-full"
+            className="bg-[#003b95] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#002d73] transition-all w-full flex items-center justify-center gap-2"
           >
-            {t('checkout.backHome')}
+            <i className="fa-solid fa-home"></i> {t('checkout.backHome', 'Trở về trang chủ')}
           </button>
         </div>
       </div>
@@ -227,23 +345,13 @@ const Checkout = () => {
                   </label>
 
                   {paymentMethod === 'bank' && (
-                    <div className="ml-9 p-4 bg-gray-50 rounded-lg border border-gray-200 animate-fade-in-up flex flex-col md:flex-row gap-6 items-center">
-                      <div className="flex-1 w-full space-y-2 text-sm text-gray-700">
-                        <p className="text-base font-bold text-gray-900 mb-2">{t('checkout.bankInfo', 'Thông tin chuyển khoản')}</p>
-                        <p><span className="font-medium text-gray-500">{t('checkout.bankName', 'Ngân hàng')}:</span> Vietcombank (VCB)</p>
-                        <p><span className="font-medium text-gray-500">{t('checkout.accountNumber', 'Số tài khoản')}:</span> <span className="text-booking-blue font-bold text-base">123456789012</span></p>
-                        <p><span className="font-medium text-gray-500">{t('checkout.accountHolder', 'Chủ tài khoản')}:</span> CONG TY BOOKING CLONE</p>
-                        <p><span className="font-medium text-gray-500">{t('checkout.transferContent', 'Nội dung')}:</span> <span className="text-red-600 font-bold bg-yellow-100 px-2 py-0.5 rounded text-base inline-block">{bookingCode}</span></p>
-                        <p className="text-xs italic text-gray-500 mt-2 block border-t pt-2">* Vui lòng chuyển đúng số tiền và nội dung để hệ thống tự động đối soát xác nhận đơn hàng.</p>
-                      </div>
-                      <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-200 shrink-0">
-                        <img 
-                          src={`https://img.vietqr.io/image/vcb-123456789012-compact2.png?amount=${totalPrice}&addInfo=${bookingCode}&accountName=CONG%20TY%20BOOKING%20CLONE`} 
-                          alt="VietQR Payment" 
-                          className="w-48 h-48 object-contain"
-                        />
-                        <p className="text-xs text-center text-gray-500 mt-2 font-semibold">Quét mã qua ứng dụng ngân hàng</p>
-                      </div>
+                    <div className="ml-9 p-4 bg-blue-50 rounded-lg border border-blue-200 animate-fade-in-up text-sm text-blue-800">
+                      <p className="font-semibold mb-1"><i className="fa-solid fa-circle-info mr-2"></i>Hướng dẫn thanh toán:</p>
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li>Bấm <strong>Hoàn tất thanh toán</strong> ở cột bên phải để tiếp tục.</li>
+                        <li>Mã QR chuyển khoản sẽ hiển thị an toàn trên màn hình lớn.</li>
+                        <li>Sử dụng App Ngân hàng bất kỳ để quét mã và tự động nhận diện thông tin.</li>
+                      </ul>
                     </div>
                   )}
 
@@ -265,17 +373,26 @@ const Checkout = () => {
                     <div className="ml-9 p-4 bg-gray-50 rounded-lg border border-gray-200 animate-fade-in-up">
                       <p className="text-sm font-semibold text-gray-700 mb-3">{t('checkout.selectWallet', 'Chọn ví điện tử bạn muốn sử dụng')}</p>
                       <div className="grid grid-cols-3 gap-3">
-                        <button type="button" className="border-2 border-gray-200 hover:border-pink-500 p-3 rounded-xl text-center transition-all focus:border-pink-500 focus:bg-pink-50">
+                        <button 
+                          type="button" 
+                          onClick={() => setSelectedWallet('momo')}
+                          className={`border-2 p-3 rounded-xl text-center transition-all focus:outline-none ${selectedWallet === 'momo' ? 'border-pink-500 bg-pink-50 shadow-sm' : 'border-gray-200 hover:border-pink-300'}`}>
                           <div className="text-2xl mb-1">💳</div>
-                          <p className="text-xs font-bold text-gray-700">MoMo</p>
+                          <p className={`text-xs font-bold ${selectedWallet === 'momo' ? 'text-pink-600' : 'text-gray-700'}`}>MoMo</p>
                         </button>
-                        <button type="button" className="border-2 border-gray-200 hover:border-blue-500 p-3 rounded-xl text-center transition-all focus:border-blue-500 focus:bg-blue-50">
+                        <button 
+                          type="button" 
+                          onClick={() => setSelectedWallet('zalopay')}
+                          className={`border-2 p-3 rounded-xl text-center transition-all focus:outline-none ${selectedWallet === 'zalopay' ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-gray-200 hover:border-blue-300'}`}>
                           <div className="text-2xl mb-1">💙</div>
-                          <p className="text-xs font-bold text-gray-700">ZaloPay</p>
+                          <p className={`text-xs font-bold ${selectedWallet === 'zalopay' ? 'text-blue-600' : 'text-gray-700'}`}>ZaloPay</p>
                         </button>
-                        <button type="button" className="border-2 border-gray-200 hover:border-red-500 p-3 rounded-xl text-center transition-all focus:border-red-500 focus:bg-red-50">
+                        <button 
+                          type="button" 
+                          onClick={() => setSelectedWallet('vnpay')}
+                          className={`border-2 p-3 rounded-xl text-center transition-all focus:outline-none ${selectedWallet === 'vnpay' ? 'border-red-500 bg-red-50 shadow-sm' : 'border-gray-200 hover:border-red-300'}`}>
                           <div className="text-2xl mb-1">🔴</div>
-                          <p className="text-xs font-bold text-gray-700">VNPAY</p>
+                          <p className={`text-xs font-bold ${selectedWallet === 'vnpay' ? 'text-red-600' : 'text-gray-700'}`}>VNPAY</p>
                         </button>
                       </div>
                     </div>
@@ -372,10 +489,15 @@ const Checkout = () => {
                 {paymentMethod !== 'paypal' ? (
                   <button
                     type="submit"
-                    className="w-full bg-[#006ce4] hover:bg-[#003b95] text-white font-bold py-4 rounded-xl transition-all duration-200 text-lg active:scale-[0.98] shadow-lg shadow-blue-500/20"
+                    disabled={orderStatus === 'processing'}
+                    className={`w-full font-bold py-4 rounded-xl transition-all duration-200 text-lg flex items-center justify-center shadow-lg
+                      ${orderStatus === 'processing' ? 'bg-blue-400 cursor-not-allowed text-white' : 'bg-[#006ce4] hover:bg-[#003b95] text-white active:scale-[0.98] shadow-blue-500/20'}`}
                   >
-                    <i className="fa-solid fa-lock mr-2"></i>
-                    {t('checkout.confirmPayment', 'Hoàn tất thanh toán')}
+                    {orderStatus === 'processing' ? (
+                      <><i className="fa-solid fa-circle-notch fa-spin mr-2"></i> Đang xử lý...</>
+                    ) : (
+                      <><i className="fa-solid fa-lock mr-2"></i> {t('checkout.confirmPayment', 'Hoàn tất thanh toán')}</>
+                    )}
                   </button>
                 ) : (
                   <div className="w-full text-center bg-blue-50 text-[#00457C] font-semibold py-4 rounded-xl transition-all duration-200 text-sm border border-blue-200 border-dashed animate-pulse">
@@ -405,6 +527,71 @@ const Checkout = () => {
           </div>
         </form>
       </div>
+
+      {/* Modal Popup chứa mã QR dành riêng cho Ví điện tử */}
+      {showQrModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl max-w-sm w-full relative">
+            <button 
+               onClick={() => { setShowQrModal(false); setOrderStatus('idle'); }}
+               type="button"
+               className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 transition-colors"
+            >
+              <i className="fa-solid fa-xmark text-2xl"></i>
+            </button>
+            <div className="text-center mb-5 mt-2">
+               <h3 className={`text-xl font-bold mb-1
+                  ${selectedWallet === 'momo' ? 'text-pink-600' : ''}
+                  ${selectedWallet === 'zalopay' ? 'text-blue-600' : ''}
+                  ${selectedWallet === 'vnpay' ? 'text-red-600' : ''}
+               `}>
+                  Thanh toán bằng {selectedWallet === 'momo' ? 'MoMo' : selectedWallet === 'zalopay' ? 'ZaloPay' : 'VNPay'}
+               </h3>
+               <p className="text-sm text-gray-500">Mở ứng dụng ví và quét mã bên dưới</p>
+               <div className="mt-3 inline-block bg-gray-50 px-4 py-2 rounded-full border border-gray-200">
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-600">Đơn hàng: </span>
+                  <span className="text-sm font-extrabold text-gray-900">{bookingCode}</span>
+               </div>
+            </div>
+            
+            <div className={`p-4 rounded-xl flex items-center justify-center border-2 border-dashed mb-4 bg-white shadow-inner
+               ${selectedWallet === 'momo' ? 'border-pink-300 bg-pink-50' : ''}
+               ${selectedWallet === 'zalopay' ? 'border-blue-300 bg-blue-50' : ''}
+               ${selectedWallet === 'vnpay' ? 'border-red-300 bg-red-50' : ''}
+            `}>
+              {/* Vẫn sử dụng ảnh VietQR giả lập chung cho tất cả */}
+              <img 
+                src={`https://img.vietqr.io/image/mbbank-0328282592-compact2.jpg?amount=${totalPrice}&addInfo=${bookingCode}&accountName=NGUYEN%20TUAN%20KIET`} 
+                alt="E-Wallet Payment QR" 
+                className="w-56 h-56 object-contain mix-blend-multiply"
+              />
+            </div>
+            
+            <div className={`text-sm p-4 rounded-xl flex items-center justify-center gap-3 mb-2 font-semibold animate-pulse border
+               ${selectedWallet === 'momo' ? 'bg-pink-100 text-pink-700 border-pink-200' : ''}
+               ${selectedWallet === 'zalopay' ? 'bg-blue-100 text-blue-700 border-blue-200' : ''}
+               ${selectedWallet === 'vnpay' ? 'bg-red-100 text-red-700 border-red-200' : ''}
+            `}>
+               <i className="fa-solid fa-circle-notch fa-spin text-lg"></i>
+               {t('checkout.waitingPayment', 'Đang chờ bạn quét mã...')}
+            </div>
+
+            <div className="flex items-center justify-center gap-2 mb-4 text-xs text-gray-400">
+               <i className="fa-regular fa-clock"></i>
+               Mã hết hạn sau: <span className="font-bold text-gray-600">{Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}</span>
+            </div>
+
+            {/* Nút giả lập thanh toán (Dành cho bản vẽ Demo) */}
+            <button 
+              onClick={handleQrScanned}
+              className="w-full mt-2 py-3 bg-gray-900 text-white rounded-lg font-bold hover:bg-black transition shadow flex items-center justify-center gap-2 text-sm"
+            >
+              <i className="fa-solid fa-bolt text-yellow-500"></i> Mô phỏng thanh toán thành công
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

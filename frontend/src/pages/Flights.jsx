@@ -182,31 +182,32 @@ const Flights = () => {
           </div>
         </div>
 
-        {/* Hướng dẫn/Phổ biến - Ẩn đi khi có kết quả tìm kiếm */}
+
+        {/* Lợi ích khi đặt vé */}
         {results.length === 0 && (
-          <div className="section-container mt-12 mb-20">
-            <h2 className="text-2xl font-bold mb-6">{t('flights.popularFlights')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white rounded-lg shadow border overflow-hidden cursor-pointer hover:shadow-md transition-shadow">
-                <img src="https://images.unsplash.com/photo-1555505012-1c4b6992d9ec?w=500" alt="HN-HCM" className="w-full h-40 object-cover" />
-                <div className="p-4">
-                  <h4 className="font-bold">Hà Nội - TP. Hồ Chí Minh</h4>
-                  <p className="text-sm text-gray-500">{t('flights.fromPrice')} 1.200.000 VND</p>
+          <div className="section-container mt-12 mb-20 animate-fade-in-up">
+            <h2 className="text-2xl font-bold mb-8 text-gray-900">{t('flights.whyBookWithUs')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="flex flex-col items-start p-6 bg-white rounded-xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all">
+                <div className="w-12 h-12 bg-blue-50 text-booking-blue rounded-full flex items-center justify-center text-xl mb-4">
+                  <i className="fa-solid fa-search"></i>
                 </div>
+                <h3 className="font-bold text-lg mb-2 text-gray-900">{t('flights.hugeSelection')}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{t('flights.hugeSelectionDesc')}</p>
               </div>
-              <div className="bg-white rounded-lg shadow border overflow-hidden cursor-pointer hover:shadow-md transition-shadow">
-                <img src="https://images.unsplash.com/photo-1559592413-7ece70199464?w=500" alt="HCM-DN" className="w-full h-40 object-cover" />
-                <div className="p-4">
-                  <h4 className="font-bold">TP. Hồ Chí Minh - Đà Nẵng</h4>
-                  <p className="text-sm text-gray-500">{t('flights.fromPrice')} 850.000 VND</p>
+              <div className="flex flex-col items-start p-6 bg-white rounded-xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all">
+                <div className="w-12 h-12 bg-blue-50 text-booking-blue rounded-full flex items-center justify-center text-xl mb-4">
+                  <i className="fa-solid fa-tags"></i>
                 </div>
+                <h3 className="font-bold text-lg mb-2 text-gray-900">{t('flights.noHiddenFees')}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{t('flights.noHiddenFeesDesc')}</p>
               </div>
-              <div className="bg-white rounded-lg shadow border overflow-hidden cursor-pointer hover:shadow-md transition-shadow">
-                <img src="https://images.unsplash.com/photo-1506634064465-7dab4de896ed?w=500" alt="HN-PQ" className="w-full h-40 object-cover" />
-                <div className="p-4">
-                  <h4 className="font-bold">Hà Nội - Phú Quốc</h4>
-                  <p className="text-sm text-gray-500">{t('flights.fromPrice')} 1.800.000 VND</p>
+              <div className="flex flex-col items-start p-6 bg-white rounded-xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all">
+                <div className="w-12 h-12 bg-blue-50 text-booking-blue rounded-full flex items-center justify-center text-xl mb-4">
+                  <i className="fa-solid fa-calendar-check"></i>
                 </div>
+                <h3 className="font-bold text-lg mb-2 text-gray-900">{t('flights.moreFlexibility')}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{t('flights.moreFlexibilityDesc')}</p>
               </div>
             </div>
           </div>

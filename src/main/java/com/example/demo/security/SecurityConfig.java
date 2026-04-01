@@ -34,8 +34,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/cars/**").permitAll()
                         .requestMatchers("/api/attractions/**").permitAll()
                         .requestMatchers("/api/airport-taxis/**").permitAll()
-                        .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/images/**").permitAll() // Mở khóa
-                                                                                                            // trang chủ
+                        .requestMatchers("/api/payment/**").permitAll() // Thêm cổng thanh toán
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/bookings/status/**").permitAll() // Cho phép polling status không cần token
+                        .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/images/**").permitAll() // Mở khóa trang chủ
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated() // Cần đăng nhập để dùng các API còn lại (như đặt phòng)
                 )

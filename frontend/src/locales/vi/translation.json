@@ -92,7 +92,14 @@
     "checkedBag": "Hành lý ký gửi: Tùy hạng vé",
     "meal": "Suất ăn nhẹ trên máy bay",
     "wifi": "Wifi (Tùy tàu bay)",
-    "confirmSelection": "Xác nhận chọn"
+    "confirmSelection": "Xác nhận chọn",
+    "whyBookWithUs": "Vì sao nên đặt vé qua chúng tôi?",
+    "hugeSelection": "Lựa chọn phong phú",
+    "hugeSelectionDesc": "Dễ dàng so sánh giá từ hàng trăm hãng bay và đại lý",
+    "noHiddenFees": "Không phí ẩn",
+    "noHiddenFeesDesc": "Luôn biết chính xác số tiền bạn cần trả là bao nhiêu",
+    "moreFlexibility": "Linh hoạt tối đa",
+    "moreFlexibilityDesc": "Lạc quan lên kế hoạch với các tùy chọn hủy miễn phí"
   },
   "flightAndHotel": {
     "heroTitle": "Chuyến đi trọn gói: Máy bay + Khách sạn",
@@ -277,5 +284,52 @@
     "typeAttraction": "Địa điểm tham quan",
     "typeTaxi": "Taxi sân bay",
     "typePackage": "Gói bay + ở"
+  },
+  "searchResults": {
+    "home": "Trang chủ",
+    "vietnam": "Việt Nam",
+    "searchResults": "Kết quả tìm kiếm",
+    "searching": "Đang tìm...",
+    "foundCount": "tìm thấy {{count}} chỗ nghỉ",
+    "topPicks": "Lựa chọn hàng đầu",
+    "lowestPrice": "Giá thấp nhất trước",
+    "ratingAndPrice": "Điểm đánh giá & Giá",
+    "loading": "Đang tải dữ liệu...",
+    "fetchError": "Không thể tải danh sách khách sạn. Vui lòng thử lại.",
+    "noResults": "Không tìm thấy chỗ nghỉ nào tại {{city}}.",
+    "contact": "Liên hệ",
+    "noDescription": "Không có mô tả cho khách sạn này."
+  },
+  "hotelCard": {
+    "excellent": "Tuyệt vời",
+    "reviews": "{{count}} đánh giá",
+    "viewOnMap": "Xem trên bản đồ",
+    "studioApartment": "Căn hộ Studio",
+    "freeCancel": "Miễn phí hủy bỏ",
+    "noPrepayment": "Không cần thanh toán trước",
+    "greatDeal": "Ưu đãi giá hời",
+    "nights": "{{count}} đêm",
+    "adults": "{{count}} người lớn",
+    "children": ", {{count}} trẻ em",
+    "rooms": ", {{count}} phòng",
+    "includesTaxes": "Đã bao gồm thuế và phí",
+    "checkAvailability": "Xem chỗ trống",
+    "descTitle": "Mô tả chỗ nghỉ:",
+    "freeWifi": "Wifi miễn phí",
+    "parking": "Có bãi đỗ xe",
+    "bookNow": "Đặt ngay"
+  },
+  "filterSidebar": {
+    "showOnMap": "Hiển thị trên bản đồ",
+    "filterBy": "Chọn lọc theo:",
+    "guestRating": "Điểm đánh giá của khách",
+    "superb": "Tuyệt hảo: 9 điểm trở lên",
+    "veryGood": "Rất tốt: 8 điểm trở lên",
+    "good": "Tốt: 7 điểm trở lên",
+    "propertyType": "Loại chỗ ở",
+    "apartment": "Căn hộ",
+    "hotel": "Khách sạn",
+    "villa": "Biệt thự",
+    "resort": "Resort"
   }
 }

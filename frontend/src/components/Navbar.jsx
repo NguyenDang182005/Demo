@@ -78,9 +78,7 @@ const Navbar = () => {
                             )}
                         </button>
                     </Dropdown>
-                    <button className="hover:bg-booking-dark p-2 rounded mr-1" title={t('navbar.help')}>
-                        <i className="fa-regular fa-circle-question text-xl"></i>
-                    </button>
+
                     
                     <div className="flex items-center space-x-4">
                         <Link to="/list-your-property">

@@ -17,9 +17,25 @@ public class BookingService {
         return bookingRepository.findByUserId(userId);
     }
 
+    public java.util.Optional<Booking> getBookingByCode(String bookingCode) {
+        List<Booking> list = bookingRepository.findByBookingCode(bookingCode);
+        if (list != null && !list.isEmpty()) {
+            return java.util.Optional.of(list.get(list.size() - 1));
+        }
+        return java.util.Optional.empty();
+    }
+
     public Booking createBooking(Booking booking) {
-        // Logic check số phòng trống sẽ được implement thêm tại đây!
-        return bookingRepository.save(booking);
+        try {
+            System.out.println("BookingService: Dang luu don hang voi ma: " + booking.getBookingCode());
+            return bookingRepository.save(booking);
+        } catch (Exception e) {
+            System.err.println("DATABASE ERROR khi luu booking: " + e.getMessage());
+            if (e.getCause() != null) {
+                System.err.println("Root Cause: " + e.getCause().getMessage());
+            }
+            throw e;
+        }
     }
 
     public void cancelBooking(Long id) {

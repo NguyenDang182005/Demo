@@ -20,6 +20,13 @@ public class BookingController {
         return bookingService.getUserBookings(userId);
     }
 
+    @GetMapping("/status/{code}")
+    public org.springframework.http.ResponseEntity<String> getBookingStatus(@PathVariable String code) {
+        return bookingService.getBookingByCode(code)
+                .map(booking -> org.springframework.http.ResponseEntity.ok(booking.getStatus().toString()))
+                .orElse(org.springframework.http.ResponseEntity.status(404).body("NOT_FOUND"));
+    }
+
     @PostMapping
     public Booking createBooking(@RequestBody Booking booking) {
         return bookingService.createBooking(booking);

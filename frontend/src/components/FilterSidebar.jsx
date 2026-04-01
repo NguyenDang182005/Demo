@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const FilterSidebar = () => {
+    const { t } = useTranslation();
     return (
         <aside className="w-[280px] shrink-0 font-sans hidden md:block">
             {/* 1. Phần Bản đồ */}
@@ -11,24 +13,24 @@ const FilterSidebar = () => {
                     className="w-full h-full object-cover opacity-70"
                 />
                 <button className="absolute inset-0 m-auto w-fit h-fit bg-[#006ce4] text-white px-4 py-2 rounded shadow-lg text-sm font-bold hover:bg-[#003b95] transition">
-                    Hiển thị trên bản đồ
+                    {t('filterSidebar.showOnMap')}
                 </button>
             </div>
 
             {/* 2. Khung các bộ lọc */}
             <div className="border border-gray-200 rounded-md">
                 <div className="p-4 border-b border-gray-200 bg-gray-50">
-                    <h2 className="font-bold text-sm text-gray-900">Chọn lọc theo:</h2>
+                    <h2 className="font-bold text-sm text-gray-900">{t('filterSidebar.filterBy')}</h2>
                 </div>
 
                 {/* Nhóm: Điểm đánh giá */}
                 <div className="p-4 border-b border-gray-200">
-                    <h3 className="text-sm font-bold mb-3">Điểm đánh giá của khách</h3>
+                    <h3 className="text-sm font-bold mb-3">{t('filterSidebar.guestRating')}</h3>
                     <div className="space-y-2">
                         {[
-                            { label: "Tuyệt hảo: 9 điểm trở lên", count: 803 },
-                            { label: "Rất tốt: 8 điểm trở lên", count: 1882 },
-                            { label: "Tốt: 7 điểm trở lên", count: 2612 }
+                            { label: t('filterSidebar.superb'), count: 803 },
+                            { label: t('filterSidebar.veryGood'), count: 1882 },
+                            { label: t('filterSidebar.good'), count: 2612 }
                         ].map((item, i) => (
                             <label key={i} className="flex items-center justify-between group cursor-pointer">
                                 <div className="flex items-center gap-3">
@@ -43,9 +45,9 @@ const FilterSidebar = () => {
 
                 {/* Nhóm: Loại chỗ ở */}
                 <div className="p-4">
-                    <h3 className="text-sm font-bold mb-3">Loại chỗ ở</h3>
+                    <h3 className="text-sm font-bold mb-3">{t('filterSidebar.propertyType')}</h3>
                     <div className="space-y-2">
-                        {["Căn hộ", "Khách sạn", "Biệt thự", "Resort"].map((type, i) => (
+                        {[t('filterSidebar.apartment'), t('filterSidebar.hotel'), t('filterSidebar.villa'), t('filterSidebar.resort')].map((type, i) => (
                             <label key={i} className="flex items-center justify-between group cursor-pointer">
                                 <div className="flex items-center gap-3">
                                     <input type="checkbox" className="w-5 h-5 border-gray-300 rounded accent-[#006ce4]" />

@@ -92,7 +92,14 @@
     "checkedBag": "Checked bag: Depends on fare",
     "meal": "In-flight snack",
     "wifi": "Wifi (Subject to availability)",
-    "confirmSelection": "Confirm Selection"
+    "confirmSelection": "Confirm Selection",
+    "whyBookWithUs": "Why book with us?",
+    "hugeSelection": "Search a huge selection",
+    "hugeSelectionDesc": "Compare flights from hundreds of airlines globally",
+    "noHiddenFees": "No hidden fees",
+    "noHiddenFeesDesc": "Know exactly what you are paying for",
+    "moreFlexibility": "More flexibility",
+    "moreFlexibilityDesc": "Filter flights with free cancellation"
   },
   "flightAndHotel": {
     "heroTitle": "Packages: Flight + Hotel",
@@ -277,5 +284,52 @@
     "typeAttraction": "Attraction",
     "typeTaxi": "Airport Taxi",
     "typePackage": "Flight + Hotel Package"
+  },
+  "searchResults": {
+    "home": "Home",
+    "vietnam": "Vietnam",
+    "searchResults": "Search results",
+    "searching": "Searching...",
+    "foundCount": "found {{count}} properties",
+    "topPicks": "Our top picks",
+    "lowestPrice": "Lowest price first",
+    "ratingAndPrice": "Review score & price",
+    "loading": "Loading data...",
+    "fetchError": "Could not load hotels. Please try again.",
+    "noResults": "No properties found in {{city}}.",
+    "contact": "Contact",
+    "noDescription": "No description available."
+  },
+  "hotelCard": {
+    "excellent": "Excellent",
+    "reviews": "{{count}} reviews",
+    "viewOnMap": "View on map",
+    "studioApartment": "Studio Apartment",
+    "freeCancel": "Free cancellation",
+    "noPrepayment": "No prepayment needed",
+    "greatDeal": "Great Value Today",
+    "nights": "{{count}} nights",
+    "adults": "{{count}} adults",
+    "children": ", {{count}} children",
+    "rooms": ", {{count}} rooms",
+    "includesTaxes": "Includes taxes and charges",
+    "checkAvailability": "See availability",
+    "descTitle": "Property description:",
+    "freeWifi": "Free WiFi",
+    "parking": "Parking",
+    "bookNow": "Reserve"
+  },
+  "filterSidebar": {
+    "showOnMap": "Show on map",
+    "filterBy": "Filter by:",
+    "guestRating": "Guest rating",
+    "superb": "Superb: 9+",
+    "veryGood": "Very good: 8+",
+    "good": "Good: 7+",
+    "propertyType": "Property type",
+    "apartment": "Apartments",
+    "hotel": "Hotels",
+    "villa": "Villas",
+    "resort": "Resorts"
   }
 }

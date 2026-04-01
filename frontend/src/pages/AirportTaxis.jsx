@@ -109,13 +109,13 @@ const AirportTaxis = () => {
               <div className="md:col-span-4 border rounded-lg p-2 flex items-center gap-2 bg-white">
                 <i className="fa-solid fa-plane-arrival text-gray-400 ml-2"></i>
                 <div className="flex flex-col w-full">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase line-clamp-1">{t('airportTaxis.pickupCity')}</span>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase line-clamp-1">{t('airportTaxis.pickupLocation')}</span>
                   <AutoComplete
                     options={cities.map(city => ({ value: city }))}
                     filterOption={(inputValue, option) =>
                         option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
                     }
-                    placeholder={t('airportTaxis.pickupCityPlaceholder')}
+                    placeholder={t('airportTaxis.pickupPlaceholder')}
                     variant="borderless"
                     className="w-full text-sm"
                     value={pickupCity}
