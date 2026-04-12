@@ -1,6 +1,7 @@
-# Quy trình Git Workflow - Dự án Demo
+# Quy trình Git Workflow - Hệ thống Demo và Admin
 
-> **Repository:** https://github.com/NguyenDang182005/Demo.git
+> **Repository Demo:** https://github.com/NguyenDang182005/Demo.git
+> **Repository Admin:** https://github.com/NguyenDang182005/admin.git
 > **Nhánh chính:** `main`
 > **Thành viên:** Nguyen Hai Dang, Kiet Nguyen
 
@@ -41,8 +42,11 @@
 Nếu **chưa có** project trên máy:
 
 ```bash
-git clone https://github.com/NguyenDang182005/Demo.git
-cd Demo
+# Repo dành cho user
+git clone https://github.com/NguyenDang182005/Demo.git demo
+
+# Repo dành cho admin
+git clone https://github.com/NguyenDang182005/admin.git admin
 ```
 
 ---

@@ -260,7 +260,6 @@ const Account = () => {
                     </div>
                 ) : (
                     <div className="space-y-4">
-<<<<<<< Updated upstream
                         {bookings.map(book => {
                             const getServiceInfo = (type) => {
                                 switch(type) {
@@ -306,22 +305,6 @@ const Account = () => {
                                             Xem chi tiết &rarr;
                                         </button>
                                     </div>
-=======
-                        {bookings.map(book => (
-                            <div key={book.id} className="border border-gray-200 p-5 rounded-xl hover:shadow-md transition bg-white flex flex-col md:flex-row justify-between md:items-center gap-4">
-                                <div>
-                                    <span className="bg-blue-100 text-booking-blue text-xs font-bold px-2 py-1 uppercase rounded tracking-wider mb-2 inline-block">Mã Đặt #{book.id}</span>
-                                    <h4 className="font-bold text-lg text-gray-800">
-                                        {book.bookingType === 'FLIGHT' ? '✈️ Vé Máy Bay'
-                                          : book.bookingType === 'HOTEL' ? '🏨 Khách Sạn'
-                                          : book.bookingType === 'CAR_RENTAL' ? '🚗 Thuê Xe'
-                                          : book.bookingType === 'ATTRACTION' ? '🏛️ Điểm tham quan'
-                                          : book.bookingType === 'TAXI' ? '🚕 Taxi Sân bay'
-                                          : book.bookingType || 'Dịch Vụ'}
-                                    </h4>
-                                    <p className="text-sm text-gray-500 mt-1">Trạng thái: <strong className={book.status === 'CONFIRMED' ? 'text-green-600' : book.status === 'PENDING' ? 'text-yellow-600' : 'text-gray-600'}>{book.status === 'CONFIRMED' ? '✅ Đã xác nhận' : book.status === 'PENDING' ? '⏳ Đang chờ' : book.status}</strong></p>
-                                    <p className="text-xs text-gray-400 mt-1">Mã đơn: <span className="font-mono">{book.bookingCode || '-'}</span></p>
->>>>>>> Stashed changes
                                 </div>
                             );
                         })}

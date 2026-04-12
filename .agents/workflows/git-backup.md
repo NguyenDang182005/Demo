@@ -3,7 +3,9 @@ description: [Daily Backup Git Workflow]
 ---
 # Quy trình Git: Lưu code theo ngày
 
-1. Tạo và chuyển sang nhánh ngày hôm nay:
+*Lưu ý: Thực hiện quy trình này riêng biệt cho từng thư mục dự án (`demo` và `admin`).*
+
+1. Tại thư mục dự án (`cd demo` hoặc `cd admin`), tạo và chuyển sang nhánh ngày hôm nay:
    ```bash
    git checkout -b 2026-03-24
    ```
