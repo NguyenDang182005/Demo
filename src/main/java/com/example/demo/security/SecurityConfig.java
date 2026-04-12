@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/cars", "/api/cars/**").permitAll()
                         .requestMatchers("/api/attractions", "/api/attractions/**").permitAll()
                         .requestMatchers("/api/airport-taxis", "/api/airport-taxis/**").permitAll()
+                        .requestMatchers("/api/config/**").permitAll() // Thêm cấu hình chung
                         .requestMatchers("/api/payment", "/api/payment/**").permitAll() // Thêm cổng thanh toán
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/bookings/status/**").permitAll() // Cho phép polling status không cần token
                         .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/images/**").permitAll() // Mở khóa trang chủ
