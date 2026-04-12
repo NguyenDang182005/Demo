@@ -5,8 +5,6 @@ import { signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "fireb
 const SocialButtons = ({ onAuthSuccess, loading }) => {
 
     const handleFirebaseLogin = async (providerName) => {
-        if (loading) return; // Ngăn chặn bấm nhiều lần gây lỗi cancelled-popup-request
-        
         try {
             let authProvider;
             if (providerName === 'GOOGLE') {
@@ -16,6 +14,7 @@ const SocialButtons = ({ onAuthSuccess, loading }) => {
             }
 
             const result = await signInWithPopup(auth, authProvider);
+            // Lấy idToken để gửi về Backend xác thực
             const token = await result.user.getIdToken();
             const email = result.user.email;
             const name = result.user.displayName;
@@ -23,15 +22,7 @@ const SocialButtons = ({ onAuthSuccess, loading }) => {
             onAuthSuccess(providerName, token, email, name);
 
         } catch (error) {
-            // Không hiện alert nếu người dùng chủ động đóng popup hoặc bấm quá nhanh
-            if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-                console.log(`Người dùng đã đóng popup hoặc yêu cầu bị hủy: ${providerName}`);
-                return;
-            }
-            
             console.error(`Firebase ${providerName} Login Failed:`, error);
-            // Chỉ alert với những lỗi cấu hình nghiêm trọng (như auth/operation-not-allowed)
-            alert(`Lỗi cấu hình Firebase (${providerName}): ${error.code}\n\nHướng dẫn: Bạn cần kiểm tra xem đã "Enable" ${providerName} trong Firebase Console chưa.`);
         }
     };
 

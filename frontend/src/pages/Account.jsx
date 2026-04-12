@@ -235,56 +235,47 @@ const Account = () => {
                     </button>
                   </div>
                 ) : (
-                    <div className="space-y-4">
-                        {bookings.map(book => {
-                            const getServiceInfo = (type) => {
-                                switch(type) {
-                                    case 'FLIGHT': return { label: 'Vé Máy Bay', icon: <FlightIcon className="text-blue-500" /> };
-                                    case 'HOTEL': return { label: 'Khách Sạn', icon: <HotelIcon className="text-orange-500" /> };
-                                    case 'CAR_RENTAL': return { label: 'Thuê Xe', icon: <DirectionsCarIcon className="text-green-500" /> };
-                                    case 'ATTRACTION': return { label: 'Địa Điểm Tham Quan', icon: <AttractionIcon className="text-purple-500" /> };
-                                    case 'TAXI': return { label: 'Taxi Sân Bay', icon: <TaxiIcon className="text-yellow-600" /> };
-                                    case 'COMBO': return { label: 'Combo Tiết Kiệm', icon: <ComboIcon className="text-pink-500" /> };
-                                    default: return { label: type, icon: <HistoryIcon /> };
-                                }
-                            };
-                            const info = getServiceInfo(book.bookingType);
-                            
-                            return (
-                                <div key={book.id} className="border border-gray-100 p-5 rounded-2xl hover:shadow-lg transition-all duration-300 bg-white flex flex-col md:flex-row justify-between md:items-center gap-4 group">
-                                    <div className="flex items-start gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                                            {info.icon}
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="bg-blue-50 text-booking-blue text-[10px] font-bold px-2 py-0.5 uppercase rounded tracking-wider">Mã Đặt #{book.id}</span>
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
-                                                    book.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' : 
-                                                    book.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 
-                                                    'bg-orange-100 text-orange-700'
-                                                }`}>
-                                                    {book.status === 'CONFIRMED' ? 'Đã xác nhận' : 
-                                                     book.status === 'CANCELLED' ? 'Đã hủy' : 
-                                                     book.status === 'PENDING' ? 'Chờ xử lý' : book.status}
-                                                </span>
-                                            </div>
-                                            <h4 className="font-bold text-lg text-gray-800">{info.label}</h4>
-                                            <p className="text-xs text-gray-400 font-medium">Ngày đặt: {dayjs(book.createdAt).format('DD/MM/YYYY HH:mm')}</p>
-                                        </div>
-                                    </div>
-                                    <div className="md:text-right border-t md:border-t-0 pt-3 md:pt-0">
-                                        <div className="text-xl font-black text-booking-blue tracking-tight">
-                                            {book.totalPrice?.toLocaleString('vi-VN')} <span className="text-sm font-bold">VND</span>
-                                        </div>
-                                        <button className="text-xs font-bold text-[#006ce4] hover:underline mt-1 bg-transparent border-none p-0 cursor-pointer">
-                                            Xem chi tiết &rarr;
-                                        </button>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                  <div className="space-y-3">
+                    {bookings.map(book => {
+                      const info = getServiceInfo(book.bookingType);
+                      return (
+                        <div key={book.id}
+                          className="flex flex-col md:flex-row justify-between md:items-center gap-4 p-5 rounded-2xl transition-all duration-200 group cursor-pointer"
+                          style={{ border: '1px solid rgba(91,97,110,0.15)', background: '#fff' }}
+                          onMouseOver={e => e.currentTarget.style.background = '#f7f8ff'}
+                          onMouseOut={e => e.currentTarget.style.background = '#fff'}>
+
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105"
+                              style={{ background: info.bg }}>
+                              {info.icon}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                                  style={{ background: '#006ce412', color: CB_BLUE }}>
+                                  #{book.id}
+                                </span>
+                                <StatusBadge status={book.status} />
+                              </div>
+                              <h4 className="font-bold text-base text-[#0a0b0d]">{info.label}</h4>
+                              <p className="text-xs text-gray-400 mt-0.5">
+                                {book.bookingCode && <span className="font-mono mr-2">{book.bookingCode}</span>}
+                                {dayjs(book.createdAt).format('DD/MM/YYYY HH:mm')}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="md:text-right flex-shrink-0">
+                            <div className="text-xl font-black text-[#0a0b0d]">
+                              {book.totalPrice?.toLocaleString('vi-VN')}
+                              <span className="text-xs font-semibold text-gray-400 ml-1">VND</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             )}
