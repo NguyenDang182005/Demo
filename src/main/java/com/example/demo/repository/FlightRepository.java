@@ -2,21 +2,30 @@ package com.example.demo.repository;
 
 import com.example.demo.entity.Flight;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface FlightRepository extends JpaRepository<Flight, Long> {
-    
-    @org.springframework.data.jpa.repository.Query("SELECT f FROM Flight f " +
-            "JOIN FETCH f.departureAirport " +
-            "JOIN FETCH f.arrivalAirport " +
-            "WHERE f.departureAirport.code = :departureCode AND f.arrivalAirport.code = :arrivalCode AND " +
+
+    @Query("SELECT f FROM Flight f " +
+            "JOIN FETCH f.departureAirport dep " +
+            "JOIN FETCH f.arrivalAirport arr " +
+            "WHERE dep.code = :departureCode AND arr.code = :arrivalCode AND " +
             "f.departureTime >= :startDate AND f.departureTime <= :endDate")
     List<Flight> searchFlights(
-            @org.springframework.data.repository.query.Param("departureCode") String departureCode,
-            @org.springframework.data.repository.query.Param("arrivalCode") String arrivalCode,
-            @org.springframework.data.repository.query.Param("startDate") LocalDateTime startDate,
-            @org.springframework.data.repository.query.Param("endDate") LocalDateTime endDate);
+            @Param("departureCode") String departureCode,
+            @Param("arrivalCode") String arrivalCode,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT f FROM Flight f " +
+            "JOIN FETCH f.departureAirport dep " +
+            "JOIN FETCH f.arrivalAirport arr " +
+            "WHERE LOWER(arr.city) LIKE LOWER(CONCAT('%', :city, '%')) " +
+            "ORDER BY f.price ASC")
+    List<Flight> findByArrivalCity(@Param("city") String city);
 }

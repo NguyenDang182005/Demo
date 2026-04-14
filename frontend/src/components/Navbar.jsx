@@ -52,11 +52,11 @@ const Navbar = () => {
         }}>
             {/* Top bar */}
             <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                <Link to="/" className="text-white text-xl font-black tracking-tight no-underline">Booking.com</Link>
+                <Link to="/" className="text-white text-2xl font-black tracking-tight no-underline">Booking.com</Link>
 
                 <div className="hidden md:flex items-center gap-2">
                     {/* Currency */}
-                    <button className="text-xs font-bold text-gray-400 hover:text-white px-3 py-2 rounded-full transition-colors"
+                    <button className="text-sm font-bold text-gray-400 hover:text-white px-3 py-2 rounded-full transition-colors"
                         style={{ letterSpacing: '0.05em' }}>
                         {t('navbar.currency')}
                     </button>
@@ -74,7 +74,7 @@ const Navbar = () => {
 
                     {/* List Property */}
                     <Link to="/list-your-property"
-                        className="text-xs font-bold px-4 py-2 rounded-full no-underline transition-colors"
+                        className="text-sm font-bold px-4 py-2 rounded-full no-underline transition-colors"
                         style={{ color: '#9ca3af', background: 'rgba(255,255,255,0.06)' }}
                         onMouseOver={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
                         onMouseOut={e => { e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
@@ -88,11 +88,11 @@ const Navbar = () => {
                                 style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}
                                 onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
                                 onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}>
-                                <PersonIcon style={{ color: CB, fontSize: 16 }} />
-                                <span className="text-white text-xs font-bold max-w-[100px] truncate">{userName}</span>
+                                <PersonIcon style={{ color: CB, fontSize: 18 }} />
+                                <span className="text-white text-sm font-bold max-w-[100px] truncate">{userName}</span>
                             </Link>
                             <button onClick={handleLogout}
-                                className="text-xs font-bold px-4 py-2 rounded-full transition-all"
+                                className="text-sm font-bold px-4 py-2 rounded-full transition-all"
                                 style={{ background: 'rgba(255,255,255,0.15)', color: '#fff' }}
                                 onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
                                 onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}>
@@ -102,14 +102,14 @@ const Navbar = () => {
                     ) : (
                         <div className="flex items-center gap-2">
                             <Link to="/register"
-                                className="text-xs font-bold px-4 py-2 rounded-full no-underline transition-all"
+                                className="text-sm font-bold px-4 py-2 rounded-full no-underline transition-all"
                                 style={{ background: 'rgba(255,255,255,0.1)', color: '#fff' }}
                                 onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
                                 onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}>
                                 {t('navbar.register')}
                             </Link>
                             <Link to="/login"
-                                className="text-xs font-bold px-5 py-2 rounded-full no-underline transition-all"
+                                className="text-sm font-bold px-5 py-2 rounded-full no-underline transition-all"
                                 style={{ background: CB, color: '#fff' }}
                                 onMouseOver={e => e.currentTarget.style.background = '#578bfa'}
                                 onMouseOut={e => e.currentTarget.style.background = CB}>
@@ -133,14 +133,14 @@ const Navbar = () => {
                             (item.path !== '/' && location.pathname.startsWith(item.path));
                         return (
                             <Link key={item.path} to={item.path}
-                                className="flex items-center gap-2 px-4 py-2 rounded-full no-underline whitespace-nowrap text-xs font-semibold transition-all"
+                                className="flex items-center gap-2 px-4 py-2 rounded-full no-underline whitespace-nowrap text-[15px] font-semibold transition-all"
                                 style={{
-                                    color: isActive ? '#fff' : '#9ca3af',
-                                    background: isActive ? CB : 'transparent',
+                                    color: isActive ? '#fff' : '#e5e7eb',
+                                    background: isActive ? '#006ce4' : 'transparent',
                                 }}
                                 onMouseOver={e => { if (!isActive) e.currentTarget.style.color = '#fff'; }}
-                                onMouseOut={e => { if (!isActive) e.currentTarget.style.color = '#9ca3af'; }}>
-                                <i className={`fa-solid ${item.icon} text-xs`}></i>
+                                onMouseOut={e => { if (!isActive) e.currentTarget.style.color = '#e5e7eb'; }}>
+                                <i className={`fa-solid ${item.icon} text-[15px]`}></i>
                                 {item.label}
                             </Link>
                         );

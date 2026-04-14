@@ -81,8 +81,8 @@ const Home = () => {
                 <div className="bg-white rounded-[24px] p-2 shadow-2xl" style={{ border: '1px solid rgba(91,97,110,0.12)' }}>
                     <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-100">
                         {/* Destination */}
-                        <div className="flex items-center px-5 py-4 flex-[1.2] min-w-0 gap-3">
-                            <i className="fa-solid fa-location-dot text-gray-300 text-lg shrink-0"></i>
+                        <div className="flex items-center px-5 py-4 flex-1 min-w-[200px] lg:min-w-0 gap-3">
+                            <i className="fa-solid fa-location-dot text-gray-500 text-lg shrink-0"></i>
                             <AutoComplete
                                 options={cities.map(c => ({ value: c }))}
                                 filterOption={(inp, opt) => opt.value.toUpperCase().includes(inp.toUpperCase())}
@@ -90,34 +90,34 @@ const Home = () => {
                                 onChange={val => setDestination(val)}
                                 placeholder={t('home.searchDestPlaceholder')}
                                 variant="borderless"
-                                className="font-medium text-base w-full min-w-0" />
+                                className="font-bold text-base w-full min-w-0" />
                         </div>
                         {/* Dates */}
-                        <div className="flex items-center px-4 py-3 flex-[1.5] min-w-[250px] lg:min-w-0 gap-3">
-                            <i className="fa-regular fa-calendar text-gray-300 text-lg shrink-0"></i>
-                            <ConfigProvider theme={{ token: { colorPrimary: CB, borderRadius: 12 } }}>
-                                <RangePicker className="w-full font-medium" variant="borderless"
+                        <div className="flex items-center px-4 py-3 flex-[1.4] min-w-[250px] lg:min-w-0 gap-3">
+                            <i className="fa-regular fa-calendar text-gray-500 text-lg shrink-0"></i>
+                            <ConfigProvider theme={{ token: { colorPrimary: CB, borderRadius: 12, colorTextPlaceholder: '#6b7280' } }}>
+                                <RangePicker className="w-full font-bold text-base" variant="borderless"
                                     format="DD/MM/YYYY"
                                     placeholder={[t('home.searchDateCheckIn'), t('home.searchDateCheckOut')]}
                                     onChange={val => setDates(val)}
-                                    separator={<i className="fa-solid fa-arrow-right text-gray-300 text-xs"></i>} />
+                                    separator={<i className="fa-solid fa-arrow-right text-gray-500 text-xs mx-2"></i>} />
                             </ConfigProvider>
                         </div>
                         {/* Guests */}
                         <Popover content={guestContent} title={<span className="font-bold text-gray-800">{t('home.searchGuests')}</span>} trigger="click" placement="bottom">
-                            <div className="flex items-center px-5 py-4 flex-1 min-w-0 gap-3 cursor-pointer hover:bg-gray-50 transition-colors rounded-r-[22px]">
-                                <i className="fa-regular fa-user text-gray-300 text-lg shrink-0"></i>
-                                <span className="text-gray-600 font-medium text-sm flex-1 truncate">
+                            <div className="flex items-center px-5 py-4 flex-[1.3] min-w-[240px] lg:min-w-0 gap-3 cursor-pointer hover:bg-gray-50 transition-colors rounded-r-[22px]">
+                                <i className="fa-regular fa-user text-gray-500 text-lg shrink-0"></i>
+                                <span className="text-gray-700 font-bold text-base flex-1 truncate">
                                     {options.adult} {t('home.searchAdults')} · {options.children} {t('home.searchChildren')} · {options.room} {t('home.searchRooms')}
                                 </span>
-                                <i className="fa-solid fa-chevron-down text-gray-300 text-xs shrink-0"></i>
+                                <i className="fa-solid fa-chevron-down text-gray-500 text-xs shrink-0"></i>
                             </div>
                         </Popover>
                         {/* CTA */}
-                        <div className="flex items-center p-2">
+                        <div className="shrink-0 p-2">
                             <button type="button" onClick={handleSearch}
-                                className="font-bold text-white px-8 py-4 rounded-[18px] whitespace-nowrap transition-all active:scale-95 w-full md:w-auto"
-                                style={{ background: CB, fontSize: 15 }}
+                                className="h-full min-h-[56px] px-8 text-white font-black text-lg transition-all active:scale-95 flex items-center justify-center rounded-[18px] w-full"
+                                style={{ background: CB }}
                                 onMouseOver={e => e.currentTarget.style.background = '#578bfa'}
                                 onMouseOut={e => e.currentTarget.style.background = CB}>
                                 {t('home.searchButton')}

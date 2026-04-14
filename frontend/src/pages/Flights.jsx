@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DatePicker, Select, Radio, ConfigProvider, message } from 'antd';
+import { DatePicker, Select, Radio, ConfigProvider, message, Popover } from 'antd';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
@@ -25,6 +25,8 @@ const Flights = () => {
   const [arrivalCode, setArrivalCode] = useState(null);
   const [departureDate, setDepartureDate] = useState(null);
   const [tripType, setTripType] = useState('roundtrip');
+  const [guests, setGuests] = useState(1);
+  const [seatClass, setSeatClass] = useState('economy');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [airports, setAirports] = useState([]);
@@ -101,10 +103,10 @@ const Flights = () => {
         {/* HERO Banner */}
         <div style={{ background: NAVY, paddingBottom: '90px', paddingTop: '80px' }} className="w-full px-4 relative">
             <div className="max-w-6xl mx-auto relative z-10 text-center animate-fade-in-up">
-                <h1 className="text-4xl md:text-5xl font-black mb-4 text-white tracking-tight leading-tight">
+                <h1 className="text-white font-black mb-6 leading-none" style={{ fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 1.0 }}>
                     {t('flights.heroTitle')}
                 </h1>
-                <p className="text-xl text-gray-400 font-medium max-w-2xl mx-auto">
+                <p style={{ color: '#9ca3af', fontSize: 18, maxWidth: 560, margin: '0 auto 40px' }}>
                     {t('flights.heroSubtitle')}
                 </p>
             </div>
@@ -113,22 +115,49 @@ const Flights = () => {
         {/* SEARCH BOX */}
         <div className="max-w-[1140px] mx-auto px-4 w-full relative z-20 -mt-8">
           <div className="bg-white rounded-[24px] p-2 shadow-2xl border border-gray-100">
-            <div className="px-5 py-2 border-b border-gray-50 flex items-center">
+            <div className="px-5 py-2 border-b border-gray-50 flex flex-wrap items-center gap-6 relative">
                 <Radio.Group value={tripType} onChange={(e) => setTripType(e.target.value)} buttonStyle="solid">
                     <Radio.Button value="roundtrip" className="font-bold">{t('flights.roundtrip')}</Radio.Button>
                     <Radio.Button value="oneway" className="font-bold">{t('flights.oneway')}</Radio.Button>
                 </Radio.Group>
+                <Popover 
+                    content={
+                        <div className="p-4 w-64 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <span className="font-bold text-gray-800">{t('home.searchAdults') || 'Người lớn'}</span>
+                                <div className="flex items-center gap-3">
+                                    <button onClick={() => setGuests(Math.max(1, guests - 1))} className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center font-bold hover:border-[#006ce4] hover:text-[#006ce4] transition-all">-</button>
+                                    <span className="font-black w-4 text-center">{guests}</span>
+                                    <button onClick={() => setGuests(guests + 1)} className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center font-bold hover:border-[#006ce4] hover:text-[#006ce4] transition-all">+</button>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2 pt-3 border-t border-gray-100">
+                                <Select value={seatClass} onChange={setSeatClass} variant="borderless" className="w-full font-bold">
+                                    <Select.Option value="economy">{t('flights.economy') || 'Phổ thông'}</Select.Option>
+                                    <Select.Option value="business">{t('flights.business') || 'Thương gia'}</Select.Option>
+                                </Select>
+                            </div>
+                        </div>
+                    }
+                    trigger="click" placement="bottomLeft"
+                >
+                    <button className="flex items-center gap-2 font-bold text-gray-700 hover:text-gray-900 transition-colors ml-auto sm:ml-2">
+                        <i className="fa-regular fa-user"></i>
+                        <span>{guests} {t('home.searchAdults') || 'người lớn'} · {seatClass === 'business' ? (t('flights.business') || 'Thương gia') : (t('flights.economy') || 'Phổ thông')}</span>
+                        <i className="fa-solid fa-chevron-down text-xs ml-1"></i>
+                    </button>
+                </Popover>
             </div>
             
             <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-100">
                 {/* Điểm đi */}
                 <div className="flex items-center px-5 py-4 flex-1 min-w-0 gap-3 hover:bg-gray-50 transition-colors first:rounded-bl-[22px]">
-                    <FlightTakeoffIcon className="text-gray-300 shrink-0" />
+                    <FlightTakeoffIcon className="text-gray-500 shrink-0" />
                     <Select
                         showSearch
-                        placeholder={t('flights.originPlaceholder') || "T.phố khởi hành"}
+                        placeholder={t('flights.from') || "Từ đâu?"}
                         variant="borderless"
-                        className="w-full font-bold text-lg min-w-0"
+                        className="w-full font-bold text-base min-w-0"
                         onChange={(val) => setDepartureCode(val)}
                         filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
                         options={airports.map(a => ({ value: a.code, label: `${a.city} (${a.code})` }))} />
@@ -136,12 +165,12 @@ const Flights = () => {
 
                 {/* Điểm đến */}
                 <div className="flex items-center px-5 py-4 flex-1 min-w-0 gap-3 hover:bg-gray-50 transition-colors">
-                    <FlightLandIcon className="text-gray-300 shrink-0" />
+                    <FlightLandIcon className="text-gray-500 shrink-0" />
                     <Select
                         showSearch
-                        placeholder={t('flights.destPlaceholder') || "T.phố hạ cánh"}
+                        placeholder={t('flights.to') || "Đến đâu?"}
                         variant="borderless"
-                        className="w-full font-bold text-lg min-w-0"
+                        className="w-full font-bold text-base min-w-0"
                         onChange={(val) => setArrivalCode(val)}
                         filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
                         options={airports.map(a => ({ value: a.code, label: `${a.city} (${a.code})` }))} />
@@ -149,16 +178,16 @@ const Flights = () => {
 
                 {/* DATE */}
                 <div className="flex items-center px-4 py-3 flex-[1.5] min-w-[250px] lg:min-w-0 gap-3 hover:bg-gray-50 transition-colors">
-                    <i className="fa-regular fa-calendar text-gray-300 text-lg shrink-0"></i>
-                    <ConfigProvider theme={{ token: { colorPrimary: CB, borderRadius: 12 } }}>
+                    <i className="fa-regular fa-calendar text-gray-500 text-lg shrink-0"></i>
+                    <ConfigProvider theme={{ token: { colorPrimary: CB, borderRadius: 12, colorTextPlaceholder: '#6b7280' } }}>
                       <RangePicker
                           disabledDate={disabledDate} 
                           variant="borderless"
-                          className="w-full font-medium"
+                          className="w-full font-bold text-base"
                           format="DD/MM/YYYY"
-                          placeholder={[t('home.searchDateCheckIn') || 'Ngày đi', t('home.searchDateCheckOut') || 'Ngày về']}
+                          placeholder={[t('flights.dateStart') || 'Ngày đi', t('flights.dateEnd') || 'Ngày về']}
                           onChange={(dates) => setDepartureDate(dates)}
-                          separator={<i className="fa-solid fa-arrow-right text-gray-300 text-xs shrink-0"></i>}
+                          separator={<i className="fa-solid fa-arrow-right text-gray-500 text-xs shrink-0 mx-2"></i>}
                       />
                     </ConfigProvider>
                 </div>

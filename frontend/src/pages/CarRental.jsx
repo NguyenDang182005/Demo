@@ -100,10 +100,10 @@ const CarRental = () => {
         {/* HERO Banner */}
         <div style={{ background: NAVY, paddingBottom: '90px', paddingTop: '80px' }} className="w-full px-4 relative">
             <div className="max-w-6xl mx-auto relative z-10 text-center animate-fade-in-up">
-                <h1 className="text-4xl md:text-5xl font-black mb-4 text-white tracking-tight leading-tight">
+                <h1 className="text-white font-black mb-6 leading-none" style={{ fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 1.0 }}>
                     {t('carRental.heroTitle')}
                 </h1>
-                <p className="text-xl text-gray-400 font-medium max-w-2xl mx-auto">
+                <p style={{ color: '#9ca3af', fontSize: 18, maxWidth: 560, margin: '0 auto 40px' }}>
                     {t('carRental.heroSubtitle')}
                 </p>
             </div>
@@ -122,12 +122,12 @@ const CarRental = () => {
             <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-100">
               {/* Điểm nhận */}
               <div className={`${differentLocation ? 'flex-1' : 'flex-[1.5]'} flex items-center min-w-0 gap-3 p-4 hover:bg-gray-50 transition-colors first:rounded-bl-[22px]`}>
-                <LocationOnIcon className="text-gray-300 shrink-0" />
+                <LocationOnIcon className="text-gray-500 shrink-0" />
                 <Select
                   showSearch
                   placeholder={t('carRental.pickupPlaceholder') || "Thành phố nhận xe"}
                   variant="borderless"
-                  className="w-full font-bold text-lg min-w-0"
+                  className="w-full font-bold text-base min-w-0"
                   onChange={(val) => setPickupCity(val)}
                   filterOption={(input, option) => (option?.value ?? '').toLowerCase().includes(input.toLowerCase())}
                   options={locations.map(city => ({ value: city, label: city }))}
@@ -137,12 +137,12 @@ const CarRental = () => {
               {/* Điểm trả */}
               {differentLocation && (
                 <div className="flex-1 flex items-center min-w-0 gap-3 p-4 hover:bg-gray-50 transition-colors">
-                  <LocationOnIcon className="text-red-300 shrink-0" />
+                  <LocationOnIcon className="text-red-500 shrink-0" />
                   <Select
                     showSearch
                     placeholder={t('carRental.dropoffPlaceholder') || "Thành phố trả xe"}
                     variant="borderless"
-                    className="w-full font-bold text-lg min-w-0"
+                    className="w-full font-bold text-base min-w-0"
                     value={dropoffCity}
                     onChange={(val) => setDropoffCity(val)}
                     filterOption={(input, option) => (option?.value ?? '').toLowerCase().includes(input.toLowerCase())}
@@ -153,17 +153,17 @@ const CarRental = () => {
 
               {/* Lịch trình */}
               <div className="flex-[1.5] min-w-[250px] lg:min-w-0 flex items-center px-4 py-3 gap-3 hover:bg-gray-50 transition-colors">
-                <i className="fa-regular fa-calendar text-gray-300 text-lg shrink-0"></i>
-                <ConfigProvider theme={{ token: { colorPrimary: CB, borderRadius: 12 } }}>
+                <i className="fa-regular fa-calendar text-gray-500 text-lg shrink-0"></i>
+                <ConfigProvider theme={{ token: { colorPrimary: CB, borderRadius: 12, colorTextPlaceholder: '#6b7280' } }}>
                   <RangePicker
                     disabledDate={disabledDate}
                     variant="borderless"
-                    className="w-full font-medium"
+                    className="w-full font-bold text-base"
                     format="DD/MM/YYYY HH:mm"
                     showTime={{ format: 'HH:mm' }}
                     placeholder={[t('carRental.pickupDateTime') || 'Ngày & giờ nhận xe', t('carRental.dropoffDateTime') || 'Ngày & giờ trả xe']}
                     onChange={(dates) => setPickupDatetime(dates)}
-                    separator={<i className="fa-solid fa-arrow-right text-gray-300 text-xs shrink-0"></i>}
+                    separator={<i className="fa-solid fa-arrow-right text-gray-500 text-xs shrink-0 mx-2"></i>}
                   />
                 </ConfigProvider>
               </div>

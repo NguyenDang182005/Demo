@@ -450,5 +450,30 @@
     "hotel": "Khách sạn",
     "villa": "Biệt thự",
     "resort": "Resort"
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "email": "Địa chỉ email",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "••••••••",
+    "passwordCreatePlaceholder": "Tạo mật khẩu mạnh",
+    "welcomeBack": "Chào mừng bạn đã trở lại",
+    "signingIn": "Đang đăng nhập...",
+    "signingUp": "Đang tạo tài khoản...",
+    "loginError": "Email hoặc mật khẩu không chính xác. Vui lòng thử lại.",
+    "socialLoginError": "Đăng nhập qua {{provider}} thất bại. Vui lòng thử lại.",
+    "registerPrompt": "Chưa có tài khoản?",
+    "loginPrompt": "Đã có tài khoản?",
+    "createNewAccount": "Tạo tài khoản mới",
+    "createAccount": "Tạo tài khoản",
+    "joinFree": "Tham gia miễn phí và bắt đầu đặt dịch vụ",
+    "registerTitle": "Đăng ký tài khoản",
+    "registerSuccess": "Tạo tài khoản thành công! Vui lòng đăng nhập.",
+    "registerError": "Đăng ký thất bại. Email có thể đã tồn tại.",
+    "fullName": "Họ và tên",
+    "fullNamePlaceholder": "Nhập họ tên đầy đủ",
+    "phoneNumber": "Số điện thoại",
+    "phoneNumberPlaceholder": "Ví dụ: 0901234567"
   }
 }

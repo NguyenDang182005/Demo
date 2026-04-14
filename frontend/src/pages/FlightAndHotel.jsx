@@ -100,10 +100,10 @@ const FlightAndHotel = () => {
         {/* HERO Banner */}
         <div style={{ background: NAVY, paddingBottom: '90px', paddingTop: '80px' }} className="w-full px-4 relative">
             <div className="max-w-6xl mx-auto relative z-10 text-center animate-fade-in-up">
-                <h1 className="text-4xl md:text-5xl font-black mb-4 text-white tracking-tight leading-tight">
+                <h1 className="text-white font-black mb-6 leading-none" style={{ fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 1.0 }}>
                     {t('flightAndHotel.heroTitle')}
                 </h1>
-                <p className="text-xl text-gray-400 font-medium max-w-2xl mx-auto">
+                <p style={{ color: '#9ca3af', fontSize: 18, maxWidth: 560, margin: '0 auto 40px' }}>
                     {t('flightAndHotel.heroSubtitle')}
                 </p>
             </div>
@@ -116,12 +116,12 @@ const FlightAndHotel = () => {
               
               {/* Điểm đi */}
               <div className="flex items-center px-5 py-4 flex-1 min-w-0 gap-3 hover:bg-gray-50 transition-colors first:rounded-l-[22px]">
-                <FlightTakeoffIcon className="text-gray-300 shrink-0" />
+                <FlightTakeoffIcon className="text-gray-500 shrink-0" />
                 <Select 
                   showSearch 
-                  placeholder={t('flightAndHotel.originPlaceholder')}
+                  placeholder={t('flights.from') || "Từ đâu?"}
                   variant="borderless" 
-                  className="w-full font-bold text-lg min-w-0"
+                  className="w-full font-bold text-base min-w-0"
                   onChange={(val) => setDepartureCode(val)}
                   filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
                   options={airports.map(a => ({ value: a.code, label: `${a.city} (${a.code})` }))} />
@@ -129,29 +129,29 @@ const FlightAndHotel = () => {
 
               {/* Điểm đến */}
               <div className="flex items-center px-5 py-4 flex-1 min-w-0 gap-3 hover:bg-gray-50 transition-colors">
-                <HotelIcon className="text-gray-300 shrink-0" />
+                <HotelIcon className="text-gray-500 shrink-0" />
                 <Select 
                   showSearch 
-                  placeholder={t('flightAndHotel.destPlaceholder')}
+                  placeholder={t('flights.to') || "Đến đâu?"}
                   variant="borderless" 
-                  className="w-full font-bold text-lg min-w-0"
+                  className="w-full font-bold text-base min-w-0"
                   onChange={(val) => setDestination(val)}
                   filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
                   options={cities.map(city => ({ value: city, label: city }))} />
               </div>
 
               {/* Lịch trình */}
-              <div className="flex items-center px-4 py-3 flex-[1.5] min-w-[250px] lg:min-w-0 gap-3 hover:bg-gray-50 transition-colors">
-                <i className="fa-regular fa-calendar text-gray-300 text-lg shrink-0"></i>
-                <ConfigProvider theme={{ token: { colorPrimary: CB, borderRadius: 12 } }}>
+              <div className="flex items-center px-4 py-3 flex-[2] min-w-[280px] lg:min-w-0 gap-3 hover:bg-gray-50 transition-colors">
+                <i className="fa-regular fa-calendar text-gray-500 text-lg shrink-0"></i>
+                <ConfigProvider theme={{ token: { colorPrimary: CB, borderRadius: 12, colorTextPlaceholder: '#6b7280' } }}>
                   <RangePicker 
-                    placeholder={[t('home.searchDateCheckIn') || 'Ngày đi', t('home.searchDateCheckOut') || 'Ngày về']}
+                    placeholder={[t('flights.dateStart') || 'Ngày đi', t('flights.dateEnd') || 'Ngày về']}
                     disabledDate={disabledDate} 
                     variant="borderless"
-                    className="w-full font-medium"
+                    className="w-full font-bold text-base"
                     format="DD/MM/YYYY"
                     onChange={(d) => setDates(d)}
-                    separator={<i className="fa-solid fa-arrow-right text-gray-300 text-xs shrink-0"></i>}
+                    separator={<i className="fa-solid fa-arrow-right text-gray-500 text-xs shrink-0 mx-2"></i>}
                   />
                 </ConfigProvider>
               </div>
@@ -181,9 +181,9 @@ const FlightAndHotel = () => {
                    </div>
                  }
                >
-                 <div className="flex items-center px-5 py-4 w-[160px] shrink-0 gap-3 hover:bg-gray-50 transition-colors cursor-pointer border-l border-gray-100 first:border-l-0">
-                   <GroupIcon className="text-gray-300 shrink-0" />
-                   <div className="flex flex-col min-w-0">
+                 <div className="flex items-center px-5 py-4 w-fit min-w-[180px] shrink-0 gap-3 hover:bg-gray-50 transition-colors cursor-pointer border-l border-gray-100 first:border-l-0">
+                   <GroupIcon className="text-gray-500 shrink-0" />
+                   <div className="flex flex-col min-w-0 w-full">
                      <span className="text-[11px] font-bold text-gray-400 uppercase tracking-tighter leading-none mb-1">{t('flightAndHotel.guests') || 'Số khách'}</span>
                      <span className="font-black text-gray-900 text-lg leading-tight truncate">
                        {guests} {t('home.searchAdults') || 'Người lớn'}
@@ -192,16 +192,17 @@ const FlightAndHotel = () => {
                  </div>
                </Popover>
 
-              {/* CTA */}
+              {/* Nút tìm kiếm */}
               <div className="shrink-0 p-2">
                 <button 
                   onClick={handleSearch}
-                  className="h-full min-h-[56px] px-8 text-white font-black text-lg transition-all active:scale-95 flex items-center justify-center rounded-[18px] w-full"
+                  disabled={loading}
+                  className="h-full min-h-[56px] px-8 text-white font-black text-lg transition-all active:scale-95 flex items-center justify-center rounded-[18px] w-full disabled:opacity-70 disabled:cursor-not-allowed"
                   style={{ background: CB }}
                   onMouseOver={e => !loading && (e.currentTarget.style.background = '#578bfa')}
                   onMouseOut={e => !loading && (e.currentTarget.style.background = CB)}
                 >
-                  {searching && loading ? <i className="fa-solid fa-spinner fa-spin"></i> : <>{t('home.searchButton') || 'Tìm kiếm'}</>}
+                  {loading ? <i className="fa-solid fa-spinner fa-spin text-xl"></i> : <>{t('home.searchButton') || 'Tìm kiếm'}</>}
                 </button>
               </div>
             </div>

@@ -458,5 +458,30 @@
     "hotel": "Hotels",
     "villa": "Villas",
     "resort": "Resorts"
+  },
+  "auth": {
+    "login": "Sign in",
+    "logout": "Sign out",
+    "email": "Email address",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "passwordCreatePlaceholder": "Create a strong password",
+    "welcomeBack": "Welcome back",
+    "signingIn": "Signing in...",
+    "signingUp": "Creating account...",
+    "loginError": "Incorrect email or password. Please try again.",
+    "socialLoginError": "{{provider}} login failed. Please try again.",
+    "registerPrompt": "Already have an account?",
+    "loginPrompt": "Already have an account?",
+    "createNewAccount": "Create new account",
+    "createAccount": "Create your account",
+    "joinFree": "Join for free and start booking",
+    "registerTitle": "Register",
+    "registerSuccess": "Account created successfully! Please sign in.",
+    "registerError": "Registration failed. Email may already be in use.",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Enter your full name",
+    "phoneNumber": "Phone number",
+    "phoneNumberPlaceholder": "e.g. 0901234567"
   }
 }

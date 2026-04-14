@@ -68,10 +68,10 @@ const Attractions = () => {
                 {/* HERO Banner */}
                 <div style={{ background: NAVY, paddingBottom: '90px', paddingTop: '80px' }} className="w-full px-4 relative">
                     <div className="max-w-6xl mx-auto relative z-10 text-center animate-fade-in-up">
-                        <h1 className="text-4xl md:text-5xl font-black mb-4 text-white tracking-tight leading-tight">
+                        <h1 className="text-white font-black mb-6 leading-none" style={{ fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 1.0 }}>
                             {t('attractions.heroTitle')}
                         </h1>
-                        <p className="text-xl text-gray-400 font-medium max-w-2xl mx-auto">
+                        <p style={{ color: '#9ca3af', fontSize: 18, maxWidth: 560, margin: '0 auto 40px' }}>
                             {t('attractions.heroSubtitle')}
                         </p>
                     </div>
@@ -84,7 +84,7 @@ const Attractions = () => {
                     
                     {/* Địa điểm */}
                     <div className="flex-[1.2] flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors first:rounded-l-[22px] min-w-0">
-                      <i className="fa-solid fa-location-dot text-gray-300 text-lg ml-2 mr-1 shrink-0"></i>
+                      <i className="fa-solid fa-location-dot text-gray-500 text-lg ml-2 mr-1 shrink-0"></i>
                       <div className="flex flex-col w-full min-w-0">
                         <AutoComplete
                           options={cities.map(city => ({ value: city }))}
@@ -93,7 +93,7 @@ const Attractions = () => {
                           }
                           placeholder={t('attractions.destPlaceholder') || 'Điểm tham quan'}
                           variant="borderless"
-                          className="w-full font-bold text-gray-900 text-lg min-w-0"
+                          className="w-full font-bold text-gray-900 text-base min-w-0"
                           value={city}
                           onChange={(val) => setCity(val)}
                           onSelect={(val) => setCity(val)}
@@ -103,16 +103,16 @@ const Attractions = () => {
 
                     {/* Lịch trình */}
                     <div className="flex-1 min-w-[250px] lg:min-w-0 flex items-center p-4 hover:bg-gray-50 transition-colors">
-                      <i className="fa-regular fa-calendar text-gray-300 text-lg ml-3 mr-1 shrink-0"></i>
-                      <ConfigProvider theme={{ token: { colorPrimary: CB, borderRadius: 12 } }}>
+                      <i className="fa-regular fa-calendar text-gray-500 text-lg ml-3 mr-1 shrink-0"></i>
+                      <ConfigProvider theme={{ token: { colorPrimary: CB, borderRadius: 12, colorTextPlaceholder: '#6b7280' } }}>
                         <RangePicker
                           disabledDate={disabledDate}
                           variant="borderless"
-                          className="w-full font-bold text-lg min-w-0"
+                          className="w-full font-bold text-base min-w-0"
                           format="DD/MM/YYYY"
                           placeholder={[t('attractions.dateStart') || 'Ngày đi', t('attractions.dateEnd') || 'Ngày về']}
                           onChange={(d) => setDates(d)}
-                          separator={<i className="fa-solid fa-arrow-right text-gray-300 text-xs shrink-0"></i>}
+                          separator={<i className="fa-solid fa-arrow-right text-gray-500 text-xs shrink-0 mx-2"></i>}
                         />
                       </ConfigProvider>
                     </div>

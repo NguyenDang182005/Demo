@@ -25,12 +25,13 @@ const Login = () => {
 
     const handleLoginResponse = (response) => {
         const { token, id, email: userEmail, fullName, role } = response.data;
+        const userObj = { id, email: userEmail, fullName, role };
         localStorage.setItem('booking_token', token);
         localStorage.setItem('booking_user_id', id);
-        localStorage.setItem('booking_user', userEmail);
+        localStorage.setItem('booking_user', JSON.stringify(userObj));  // ← fix: lưu object JSON
         localStorage.setItem('booking_name', fullName || userEmail);
         localStorage.setItem('booking_role', role);
-        if (login) login(token, { id, email: userEmail, fullName, role });
+        if (login) login(token, userObj);
         const from = location.state?.from;
         navigate(from ? (from.pathname + (from.search || '')) : '/', { replace: true });
     };
@@ -84,8 +85,9 @@ const Login = () => {
                         </div>
 
                         {error && (
-                            <div className="text-sm font-medium p-3 rounded-xl bg-red-50 text-red-700 border border-red-200">
-                                {error}
+                            <div className="flex items-start gap-2.5 text-sm font-medium p-3.5 rounded-xl bg-red-50 text-red-700 border border-red-200 animate-shake">
+                                <i className="fa-solid fa-circle-exclamation mt-0.5 shrink-0"></i>
+                                <span>{error}</span>
                             </div>
                         )}
 

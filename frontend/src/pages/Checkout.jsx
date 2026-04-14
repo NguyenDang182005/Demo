@@ -383,6 +383,7 @@ const Checkout = () => {
                   {t('checkout.paymentMethod')}
                 </h2>
 
+                <PayPalScriptProvider options={{ "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID || "test", currency: "USD", intent: "capture" }}>
                 <div className="space-y-3">
                   {/* Nhóm 1: Chuyển khoản ngân hàng (VietQR) */}
                   <label
@@ -464,26 +465,23 @@ const Checkout = () => {
                         <i className="fa-brands fa-paypal text-3xl"></i>
                     </div>
                   </label>
-
                   {paymentMethod === 'paypal' && (
                     <div className="ml-9 p-4 bg-gray-50 rounded-lg border border-gray-200 animate-fade-in-up flex flex-col items-center">
                       <p className="text-sm border-b border-gray-200 pb-2 font-semibold text-gray-700 w-full mb-4 text-center">{t('checkout.paypalClickPrompt')}</p>
-                      <PayPalScriptProvider options={{ "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID || "test", currency: "USD" }}>
-                        {totalPrice > 0 ? (
-                          <div className="w-full max-w-sm">
-                            <PayPalButtons 
-                              fundingSource={FUNDING.PAYPAL}
-                              createOrder={handleCreatePaypalOrder}
-                              onApprove={handleApprovePaypalOrder}
-                              style={{ layout: "vertical", shape: "rect", color: "gold", height: 50 }}
-                            />
-                          </div>
-                        ) : (
-                          <div className="p-4 bg-orange-50 border border-orange-200 text-orange-600 rounded-xl text-center text-sm font-semibold w-full">
-                            {t('checkout.minAmountError')}
-                          </div>
-                        )}
-                      </PayPalScriptProvider>
+                      {totalPrice > 0 ? (
+                        <div className="w-full max-w-sm">
+                          <PayPalButtons 
+                            fundingSource={FUNDING.PAYPAL}
+                            createOrder={handleCreatePaypalOrder}
+                            onApprove={handleApprovePaypalOrder}
+                            style={{ layout: "vertical", shape: "rect", color: "gold", height: 50 }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-orange-50 border border-orange-200 text-orange-600 rounded-xl text-center text-sm font-semibold w-full">
+                          {t('checkout.minAmountError')}
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -503,35 +501,41 @@ const Checkout = () => {
                         <i className="fa-brands fa-cc-mastercard text-3xl"></i>
                     </div>
                   </label>
-
                   {paymentMethod === 'visa' && (
                     <div className="ml-9 p-5 bg-white rounded-xl border border-gray-200 shadow-sm animate-fade-in-up">
                       <div className="flex items-start justify-between mb-4 border-b border-gray-100 pb-3">
-                         <p className="text-sm font-bold text-gray-800">{t('checkout.cardInfoPrompt')}</p>
+                         <p className="text-sm font-bold text-gray-800">{t('checkout.cardInfoPrompt') || 'Thanh toán bảo mật qua cổng quốc tế'}</p>
                          <i className="fa-solid fa-lock text-green-600" title="Secured by PayPal"></i>
                       </div>
                       <div className="bg-gray-50 p-4 rounded-xl mb-4 border border-gray-100 text-sm italic text-gray-600 text-center">
-                        {t('checkout.cardEncryptionNote')}
+                        {t('checkout.cardEncryptionNote') || 'Thông tin thẻ của bạn sẽ được bảo mật PCI DSS.'}
                       </div>
-                      <PayPalScriptProvider options={{ "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID || "test", currency: "USD", intent: "capture" }}>
-                        {totalPrice > 0 ? (
-                          <div className="payment-card-container w-full max-w-md mx-auto">
+
+                      {totalPrice > 0 ? (
+                        <div className="payment-wrapper py-4 px-2 mt-4 relative z-10"> 
+                          <div className="payment-card-container w-full max-w-lg mx-auto bg-white rounded-md shadow-sm">
                             <PayPalButtons 
                               fundingSource={FUNDING.CARD}
                               createOrder={handleCreatePaypalOrder}
                               onApprove={handleApprovePaypalOrder}
-                              style={{ layout: "vertical", shape: "rect", color: "black", label: "pay" }}
+                              style={{ 
+                                layout: "vertical", 
+                                shape: "rect", 
+                                color: "black",
+                                disableMaxWidth: true 
+                              }}
                             />
                           </div>
-                        ) : (
-                          <div className="p-4 bg-orange-50 border border-orange-200 text-orange-600 rounded-xl text-center text-sm font-semibold">
-                            Vui lòng chọn sản phẩm có giá trị lớn hơn 0.
-                          </div>
-                        )}
-                      </PayPalScriptProvider>
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-orange-50 border border-orange-200 text-orange-600 rounded-xl text-center text-sm font-semibold">
+                          Vui lòng chọn sản phẩm có giá trị lớn hơn 0.
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
+                </PayPalScriptProvider>
               </div>
             </div>
 
