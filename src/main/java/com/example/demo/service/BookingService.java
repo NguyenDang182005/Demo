@@ -5,6 +5,7 @@ import com.example.demo.entity.BookingStatus;
 import com.example.demo.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class BookingService {
     @Autowired
     private EmailService emailService;
 
+    @Transactional(readOnly = true)
     public List<Booking> getUserBookings(Long userId) {
         return bookingRepository.findByUserId(userId);
     }

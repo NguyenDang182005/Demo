@@ -13,7 +13,7 @@ const Navbar = () => {
     const navigate = useNavigate();
     const [scrolled, setScrolled] = useState(false);
 
-    const token    = localStorage.getItem('booking_token');
+    const token = localStorage.getItem('booking_token');
     const userName = localStorage.getItem('booking_name');
 
     useEffect(() => {
@@ -23,7 +23,7 @@ const Navbar = () => {
     }, []);
 
     const handleLogout = () => {
-        ['booking_token','booking_user','booking_name','booking_role','booking_user_id']
+        ['booking_token', 'booking_user', 'booking_name', 'booking_role', 'booking_user_id']
             .forEach(k => localStorage.removeItem(k));
         navigate('/login');
     };
@@ -34,12 +34,12 @@ const Navbar = () => {
     ];
 
     const navItems = [
-        { path: '/',             icon: 'fa-bed',           label: t('navbar.stays') },
-        { path: '/flights',      icon: 'fa-plane',         label: t('navbar.flights') },
-        { path: '/flight-hotel', icon: 'fa-suitcase',      label: t('navbar.flightAndHotel') },
-        { path: '/car-rentals',  icon: 'fa-car',           label: t('navbar.carRentals') },
-        { path: '/attractions',  icon: 'fa-fort-awesome',  label: t('navbar.attractions') },
-        { path: '/airport-taxis',icon: 'fa-taxi',          label: t('navbar.airportTaxis') },
+        { path: '/', icon: 'fa-bed', label: t('navbar.stays') },
+        { path: '/flights', icon: 'fa-plane', label: t('navbar.flights') },
+        { path: '/flight-hotel', icon: 'fa-suitcase', label: t('navbar.flightAndHotel') },
+        { path: '/car-rentals', icon: 'fa-car', label: t('navbar.carRentals') },
+        { path: '/attractions', icon: 'fa-fort-awesome', label: t('navbar.attractions') },
+        { path: '/airport-taxis', icon: 'fa-taxi', label: t('navbar.airportTaxis') },
     ];
 
     return (

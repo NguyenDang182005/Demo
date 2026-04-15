@@ -63,11 +63,17 @@ const Account = () => {
         const userRes = await api.get('/users/me');
         setUserProfile(userRes.data);
         if (userRes.data?.id) {
-          const bookingRes = await api.get(`/bookings/user/${userRes.data.id}`);
-          setBookings(bookingRes.data);
+          try {
+            const bookingRes = await api.get(`/bookings/user/${userRes.data.id}`);
+            setBookings(Array.isArray(bookingRes.data) ? bookingRes.data : []);
+          } catch (bookingErr) {
+            console.error('Lỗi khi tải lịch sử đặt phòng:', bookingErr);
+            setBookings([]);
+          }
         }
       } catch (error) {
         if (error.response?.status === 401 || error.response?.status === 403) handleLogout();
+        else console.error('Lỗi khi tải thông tin người dùng:', error);
       }
     };
     fetchUserData();
@@ -81,7 +87,22 @@ const Account = () => {
     try {
       await api.put('/users/me', { fullName: userProfile.fullName, email: userProfile.email, phoneNumber: userProfile.phoneNumber });
       message.success(t('account.updateSuccess') || 'Đã lưu thông tin thành công!');
-      if (userProfile.email !== localStorage.getItem('booking_user')) {
+      // So sánh đúng: lấy email từ JSON được lưu trong booking_user
+      let storedEmail = '';
+      try {
+        const stored = localStorage.getItem('booking_user');
+        if (stored) {
+          try {
+            storedEmail = JSON.parse(stored).email || '';
+          } catch (_) {
+            // Nếu không phải JSON (lưu dạng string cũ) thì dùng trực tiếp
+            storedEmail = stored;
+          }
+        }
+      } catch (e) {
+        storedEmail = '';
+      }
+      if (userProfile.email !== storedEmail) {
         message.warning(t('account.emailChangedLogout') || 'Email đã thay đổi. Hệ thống sẽ đăng xuất!');
         setTimeout(handleLogout, 2000);
       } else {

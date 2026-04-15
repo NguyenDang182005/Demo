@@ -2,7 +2,7 @@ import React from 'react';
 import { auth } from '../config/firebase';
 import { signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
 
-const SocialButtons = ({ onAuthSuccess, loading }) => {
+const SocialButtons = ({ onAuthSuccess, onError, loading }) => {
 
     const handleFirebaseLogin = async (providerName) => {
         try {
@@ -18,11 +18,15 @@ const SocialButtons = ({ onAuthSuccess, loading }) => {
             const token = await result.user.getIdToken();
             const email = result.user.email;
             const name = result.user.displayName;
-            
+
             onAuthSuccess(providerName, token, email, name);
 
         } catch (error) {
             console.error(`Firebase ${providerName} Login Failed:`, error);
+            // Bỏ qua lỗi popup bị đóng bởi người dùng
+            if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+                if (onError) onError(providerName, error.code || error.message);
+            }
         }
     };
 

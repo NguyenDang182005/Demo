@@ -113,8 +113,9 @@ const Checkout = () => {
            'flight-hotel': 'COMBO'
         };
 
+        const effectiveUserId = userId || parseInt(localStorage.getItem('booking_user_id'));
         const bookingPayload = {
-           user: userId ? { id: userId } : null, 
+           user: effectiveUserId ? { id: effectiveUserId } : null,
            bookingType: typeMap[type] || 'HOTEL',
            totalPrice: totalPrice,
            bookingCode: bookingCode,
@@ -220,8 +221,10 @@ const Checkout = () => {
       };
 
       // 1. Lưu đơn hàng thật vào database
+      // Dùng userId từ state (API), hoặc fallback từ localStorage nếu API chưa trả về
+      const effectiveUserId = userId || parseInt(localStorage.getItem('booking_user_id'));
       const bookingPayload = {
-         user: userId ? { id: userId } : null, 
+         user: effectiveUserId ? { id: effectiveUserId } : null,
          bookingType: typeMap[type] || 'HOTEL',
          totalPrice: totalPrice,
          bookingCode: bookingCode,

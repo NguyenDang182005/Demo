@@ -3,13 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import SocialButtons from '../components/SocialButtons';
+import { useAuth } from '../context/AuthContext';
 
 const CB   = '#006ce4';
 const NAVY = '#003580';
 const inputCls = "w-full px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all bg-white border border-gray-300 focus:border-[#006ce4] focus:ring-2 focus:ring-[#006ce420] placeholder:text-gray-400 text-gray-900";
-
-let useAuth;
-try { useAuth = require('../context/AuthContext').useAuth; } catch(e) { useAuth = () => ({ login: null }); }
 
 const Register = () => {
     const { t } = useTranslation();
@@ -17,8 +15,7 @@ const Register = () => {
     const [status, setStatus]     = useState({ type: '', message: '' });
     const [loading, setLoading]   = useState(false);
     const navigate = useNavigate();
-    let login = null;
-    try { login = useAuth()?.login; } catch(e){}
+    const { login } = useAuth();
 
     const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -40,17 +37,23 @@ const Register = () => {
         try {
             const response = await axios.post('/api/auth/social-login', { provider, token, email, name });
             const { token: jwt, id, email: userEmail, fullName, role } = response.data;
+            const userObj = { id, email: userEmail, fullName, role };
             localStorage.setItem('booking_token', jwt);
             localStorage.setItem('booking_user_id', id);
-            localStorage.setItem('booking_user', userEmail);
+            localStorage.setItem('booking_user', JSON.stringify(userObj));
             localStorage.setItem('booking_name', fullName || userEmail);
             localStorage.setItem('booking_role', role);
-            if (login) login(jwt, { id, email: userEmail, fullName, role });
+            if (login) login(jwt, userObj);
             navigate('/', { replace: true });
         } catch (err) {
             setStatus({ type: 'error', message: err.response?.data?.message || t('auth.socialLoginError', { provider }) });
             setLoading(false);
         }
+    };
+
+    const handleSocialError = (provider, errorMsg) => {
+        setStatus({ type: 'error', message: t('auth.socialLoginError', { provider }) + (errorMsg ? ` (${errorMsg})` : '') });
+        setLoading(false);
     };
 
     const fields = [
@@ -104,7 +107,7 @@ const Register = () => {
                         </button>
                     </form>
 
-                    <SocialButtons onAuthSuccess={handleSocialLogin} loading={loading} />
+                    <SocialButtons onAuthSuccess={handleSocialLogin} onError={handleSocialError} loading={loading} />
 
                     <div className="mt-5 text-center text-sm text-gray-600">
                         {t('auth.loginPrompt')}{' '}

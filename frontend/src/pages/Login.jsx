@@ -3,20 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import SocialButtons from '../components/SocialButtons';
+import { useAuth } from '../context/AuthContext';
 
 const CB   = '#006ce4';
 const NAVY = '#003580';
 const inputCls = "w-full px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all bg-white border border-gray-300 focus:border-[#006ce4] focus:ring-2 focus:ring-[#006ce420] placeholder:text-gray-400 text-gray-900";
 
-let useAuth;
-try { useAuth = require('../context/AuthContext').useAuth; } catch(e) { useAuth = () => ({ login: null }); }
-
 const Login = () => {
     const { t } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
-    let login = null;
-    try { login = useAuth()?.login; } catch(e){}
+    const { login } = useAuth();
 
     const [email, setEmail]       = useState(location.state?.registeredEmail || '');
     const [password, setPassword] = useState('');
@@ -54,7 +51,13 @@ const Login = () => {
             handleLoginResponse(response);
         } catch (err) {
             setError(err.response?.data?.message || t('auth.socialLoginError', { provider }));
-        } finally { setLoading(false); }
+            setLoading(false);
+        }
+    };
+
+    const handleSocialError = (provider, errorMsg) => {
+        setError(t('auth.socialLoginError', { provider }) + (errorMsg ? ` (${errorMsg})` : ''));
+        setLoading(false);
     };
 
     return (
@@ -100,7 +103,7 @@ const Login = () => {
                         </button>
                     </form>
 
-                    <SocialButtons onAuthSuccess={handleSocialLogin} loading={loading} />
+                    <SocialButtons onAuthSuccess={handleSocialLogin} onError={handleSocialError} loading={loading} />
 
                     <div className="mt-5 text-center text-sm text-gray-600">
                         {t('auth.registerPrompt')}{' '}
