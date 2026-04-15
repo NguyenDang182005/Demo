@@ -120,7 +120,14 @@
     "serviceDefault": "Dịch Vụ",
     "statusConfirmed": "Đã xác nhận",
     "statusPending": "Chờ xử lý",
-    "statusCancelled": "Đã hủy"
+    "statusCancelled": "Đã hủy",
+    "cancelBooking": "Hủy đặt phòng",
+    "confirmCancel": "Bạn có chắc chắn muốn hủy đặt chỗ này không?",
+    "cancelSuccess": "Đã hủy đặt chỗ thành công",
+    "cancelError": "Lỗi khi hủy đặt chỗ",
+    "cancelWarning": "Thao tác này không thể hoàn tác.",
+    "okCancel": "Xác nhận hủy",
+    "cancelCancel": "Quay lại"
   },
   "flights": {
     "heroTitle": "Tìm chuyến bay tiếp theo",

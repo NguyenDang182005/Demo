@@ -150,6 +150,11 @@ public class BookingService {
                 return;
             }
 
+            // Reload lại từ DB nếu user chỉ có ID (do entity được trả về từ save() không có đủ thông tin quan hệ)
+            if (booking.getUser().getEmail() == null && booking.getId() != null) {
+                booking = bookingRepository.findById(booking.getId()).orElse(booking);
+            }
+
             String email = booking.getUser().getEmail();
             String name = booking.getUser().getFullName();
 

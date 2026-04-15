@@ -12,7 +12,7 @@ import AttractionIcon from '@mui/icons-material/LocationOn';
 import TaxiIcon from '@mui/icons-material/LocalTaxi';
 import ComboIcon from '@mui/icons-material/CardGiftcard';
 import { useTranslation } from 'react-i18next';
-import { message } from 'antd';
+import { message, Modal } from 'antd';
 import api from '../services/api';
 import dayjs from 'dayjs';
 
@@ -131,23 +131,31 @@ const Account = () => {
     navigate('/login');
   };
 
-  const handleCancelBooking = async (id) => {
-    if (!window.confirm(t('account.confirmCancel') || 'Bạn có chắc chắn muốn hủy đặt chỗ này không?')) return;
-    try {
-      setLoading(true);
-      await api.put(`/bookings/${id}/cancel`);
-      message.success(t('account.cancelSuccess') || 'Đã hủy đặt chỗ thành công');
-      // Reload bookings
-      if (userProfile?.id) {
-        const bookingRes = await api.get(`/bookings/user/${userProfile.id}`);
-        setBookings(Array.isArray(bookingRes.data) ? bookingRes.data : []);
+  const handleCancelBooking = (id) => {
+    Modal.confirm({
+      title: t('account.confirmCancel') || 'Bạn có chắc chắn muốn hủy đặt chỗ này không?',
+      content: t('account.cancelWarning') || 'Thao tác này không thể hoàn tác.',
+      okText: t('account.okCancel') || 'Xác nhận hủy',
+      okType: 'danger',
+      cancelText: t('account.cancelCancel') || 'Quay lại',
+      onOk: async () => {
+        try {
+          setLoading(true);
+          await api.put(`/bookings/${id}/cancel`);
+          message.success(t('account.cancelSuccess') || 'Đã hủy đặt chỗ thành công');
+          // Reload bookings
+          if (userProfile?.id) {
+            const bookingRes = await api.get(`/bookings/user/${userProfile.id}`);
+            setBookings(Array.isArray(bookingRes.data) ? bookingRes.data : []);
+          }
+        } catch (err) {
+          console.error(err);
+          message.error(t('account.cancelError') || 'Lỗi khi hủy đặt chỗ');
+        } finally {
+          setLoading(false);
+        }
       }
-    } catch (err) {
-      console.error(err);
-      message.error(t('account.cancelError') || 'Lỗi khi hủy đặt chỗ');
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const tabs = [

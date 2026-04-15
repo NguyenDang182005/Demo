@@ -158,7 +158,14 @@
     "serviceDefault": "Service",
     "statusConfirmed": "Confirmed",
     "statusPending": "Pending",
-    "statusCancelled": "Cancelled"
+    "statusCancelled": "Cancelled",
+    "cancelBooking": "Cancel booking",
+    "confirmCancel": "Are you sure you want to cancel this booking?",
+    "cancelSuccess": "Booking cancelled successfully",
+    "cancelError": "Error cancelling booking",
+    "cancelWarning": "This action cannot be undone.",
+    "okCancel": "Confirm Cancellation",
+    "cancelCancel": "Go Back"
   },
   "flights": {
     "heroTitle": "Find your next flight",
