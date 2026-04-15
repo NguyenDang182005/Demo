@@ -16,4 +16,7 @@ public class AirportTaxi {
     private String carType;
     @Column(name = "base_price", nullable = false)
     private BigDecimal basePrice;
+
+    @Transient
+    private BigDecimal dynamicPrice;
 }

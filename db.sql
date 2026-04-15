@@ -89,7 +89,10 @@ CREATE TABLE attractions (
     name VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
     category VARCHAR(50),
-    price DECIMAL(10, 2) NOT NULL
+    price DECIMAL(10, 2) NOT NULL,
+    description TEXT,
+    image_url VARCHAR(1000),
+    rating DECIMAL(2,1)
 );
 
 -- 3.5 Xe đưa đón sân bay
@@ -106,10 +109,13 @@ CREATE TABLE airport_taxis (
 -- =========================================================
 CREATE TABLE bookings (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL,
+    user_id BIGINT,
     booking_type ENUM('FLIGHT', 'HOTEL', 'CAR_RENTAL', 'ATTRACTION', 'TAXI', 'COMBO') NOT NULL,
     total_price DECIMAL(10, 2) NOT NULL,
     status ENUM('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED') DEFAULT 'PENDING',
+    order_reference VARCHAR(32),
+    payment_link_id VARCHAR(255),
+    order_code BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
@@ -190,3 +196,33 @@ CREATE TABLE reviews (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE
 );
+
+-- =========================================================
+-- 7. BẢNG HỆ THỐNG VÀ TIỆN ÍCH
+-- =========================================================
+CREATE TABLE settings (
+    `key` VARCHAR(255) PRIMARY KEY,
+    `value` TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE galleries (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    url VARCHAR(1000) NOT NULL,
+    title VARCHAR(255),
+    category VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================================================
+-- 8. QUẢN LÝ GIÁ ĐỘNG (DYNAMIC PRICING)
+-- =========================================================
+CREATE TABLE dynamic_prices (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    service_type ENUM('ROOM', 'FLIGHT', 'CAR', 'ATTRACTION', 'TAXI') NOT NULL,
+    service_id BIGINT NOT NULL,
+    target_date DATE NOT NULL,
+    dynamic_price DECIMAL(10,2),
+    multiplier DECIMAL(3,2) DEFAULT 1.00,
+    INDEX (service_type, service_id, target_date)
+);

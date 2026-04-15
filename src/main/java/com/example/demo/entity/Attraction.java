@@ -23,4 +23,7 @@ public class Attraction {
     private String imageUrl;
     @Column(precision = 2, scale = 1)
     private BigDecimal rating;
+
+    @Transient
+    private BigDecimal dynamicPrice;
 }

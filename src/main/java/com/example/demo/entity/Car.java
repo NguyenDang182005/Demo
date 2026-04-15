@@ -20,4 +20,7 @@ public class Car {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private CarLocation location;
+
+    @Transient
+    private BigDecimal dynamicPrice;
 }

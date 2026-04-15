@@ -131,6 +131,25 @@ const Account = () => {
     navigate('/login');
   };
 
+  const handleCancelBooking = async (id) => {
+    if (!window.confirm(t('account.confirmCancel') || 'Bạn có chắc chắn muốn hủy đặt chỗ này không?')) return;
+    try {
+      setLoading(true);
+      await api.put(`/bookings/${id}/cancel`);
+      message.success(t('account.cancelSuccess') || 'Đã hủy đặt chỗ thành công');
+      // Reload bookings
+      if (userProfile?.id) {
+        const bookingRes = await api.get(`/bookings/user/${userProfile.id}`);
+        setBookings(Array.isArray(bookingRes.data) ? bookingRes.data : []);
+      }
+    } catch (err) {
+      console.error(err);
+      message.error(t('account.cancelError') || 'Lỗi khi hủy đặt chỗ');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const tabs = [
     { id: 'profile',  label: t('account.profile'),   icon: <PersonIcon fontSize="small" /> },
     { id: 'bookings', label: t('account.bookings'),   icon: <HistoryIcon fontSize="small" /> },
@@ -279,7 +298,12 @@ const Account = () => {
                                 </span>
                                 <StatusBadge status={book.status} t={t} />
                               </div>
-                              <h4 className="font-bold text-base text-[#0a0b0d]">{info.label}</h4>
+                              <h4 className="font-bold text-base text-[#0a0b0d]">
+                                {info.label} {book.serviceName && <span className="font-medium text-gray-500 text-sm ml-2.5 px-2 py-0.5 bg-gray-100 rounded-md truncate max-w-[200px] inline-block align-bottom">{book.serviceName}</span>}
+                              </h4>
+                              {book.serviceDetail && (
+                                <p className="text-sm font-medium text-gray-700 mt-1">{book.serviceDetail}</p>
+                              )}
                               <p className="text-xs text-gray-400 mt-0.5">
                                 {book.bookingCode && <span className="font-mono mr-2">{book.bookingCode}</span>}
                                 {dayjs(book.createdAt).format('DD/MM/YYYY HH:mm')}
@@ -287,11 +311,18 @@ const Account = () => {
                             </div>
                           </div>
 
-                          <div className="md:text-right flex-shrink-0">
+                          <div className="md:text-right flex-shrink-0 flex flex-col md:items-end gap-2">
                             <div className="text-xl font-black text-[#0a0b0d]">
                               {book.totalPrice?.toLocaleString('vi-VN')}
                               <span className="text-xs font-semibold text-gray-400 ml-1">VND</span>
                             </div>
+                            {(book.status === 'PENDING' || book.status === 'CONFIRMED') && (
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleCancelBooking(book.id); }}
+                                className="text-xs font-bold px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
+                                {t('account.cancelBooking') || 'Hủy Đặt Chỗ'}
+                              </button>
+                            )}
                           </div>
                         </div>
                       );

@@ -34,4 +34,10 @@ public class Booking {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+    
+    @Transient
+    private String serviceName;
+    
+    @Transient
+    private String serviceDetail;
 }

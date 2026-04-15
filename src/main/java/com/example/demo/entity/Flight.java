@@ -26,4 +26,7 @@ public class Flight {
     private LocalDateTime arrivalTime;
     @Column(nullable = false)
     private BigDecimal price;
+
+    @Transient
+    private BigDecimal dynamicPrice;
 }

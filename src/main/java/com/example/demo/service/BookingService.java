@@ -16,11 +16,78 @@ public class BookingService {
     private BookingRepository bookingRepository;
 
     @Autowired
+    private com.example.demo.repository.HotelBookingRepository hotelBookingRepository;
+    @Autowired
+    private com.example.demo.repository.FlightBookingRepository flightBookingRepository;
+    @Autowired
+    private com.example.demo.repository.CarRentalBookingRepository carRentalBookingRepository;
+    @Autowired
+    private com.example.demo.repository.AttractionBookingRepository attractionBookingRepository;
+    @Autowired
+    private com.example.demo.repository.TaxiBookingRepository taxiBookingRepository;
+
+    @Autowired
     private EmailService emailService;
 
     @Transactional(readOnly = true)
     public List<Booking> getUserBookings(Long userId) {
-        return bookingRepository.findByUserId(userId);
+        List<Booking> bookings = bookingRepository.findByUserId(userId);
+        for (Booking b : bookings) {
+            try {
+                switch (b.getBookingType()) {
+                    case HOTEL:
+                        hotelBookingRepository.findById(b.getId()).ifPresent(hb -> {
+                            if (hb.getRoom() != null && hb.getRoom().getHotel() != null) {
+                                b.setServiceName(hb.getRoom().getHotel().getName());
+                                b.setServiceDetail(hb.getRoom().getRoomType());
+                            }
+                        });
+                        break;
+                    case FLIGHT:
+                        flightBookingRepository.findById(b.getId()).ifPresent(fb -> {
+                            if (fb.getFlight() != null) {
+                                b.setServiceName(fb.getFlight().getAirline() + " (" + fb.getFlight().getFlightNumber() + ")");
+                                b.setServiceDetail(fb.getFlight().getDepartureAirport().getCode() + " ➔ " + fb.getFlight().getArrivalAirport().getCode());
+                            }
+                        });
+                        break;
+                    case CAR_RENTAL:
+                        carRentalBookingRepository.findById(b.getId()).ifPresent(cb -> {
+                            if (cb.getCar() != null && cb.getPickupLocation() != null) {
+                                b.setServiceName(cb.getCar().getCompanyName() + " - " + cb.getCar().getCarModel());
+                                b.setServiceDetail("Nhận xe: " + cb.getPickupLocation().getCity());
+                            }
+                        });
+                        break;
+                    case ATTRACTION:
+                        attractionBookingRepository.findById(b.getId()).ifPresent(ab -> {
+                            if (ab.getAttraction() != null) {
+                                b.setServiceName(ab.getAttraction().getName());
+                                b.setServiceDetail(ab.getAttraction().getCity());
+                            }
+                        });
+                        break;
+                    case TAXI:
+                        taxiBookingRepository.findById(b.getId()).ifPresent(tb -> {
+                            if (tb.getTaxi() != null) {
+                                b.setServiceName("Taxi Sân Bay " + tb.getTaxi().getAirport().getCode());
+                                b.setServiceDetail(tb.getTaxi().getCarType() + " | Điểm đến: " + tb.getDropoffAddress());
+                            }
+                        });
+                        break;
+                }
+            } catch (Exception e) {
+                System.err.println("Loi load chi tiet booking " + b.getId() + ": " + e.getMessage());
+            }
+        }
+        
+        bookings.sort((b1, b2) -> {
+            if (b1.getCreatedAt() == null) return 1;
+            if (b2.getCreatedAt() == null) return -1;
+            return b2.getCreatedAt().compareTo(b1.getCreatedAt());
+        });
+        
+        return bookings;
     }
 
     public java.util.Optional<Booking> getBookingByCode(String bookingCode) {
@@ -51,14 +118,17 @@ public class BookingService {
 
     public Booking updateStatus(Long id, BookingStatus status) {
         return bookingRepository.findById(id).map(booking -> {
+            boolean isStatusChanged = booking.getStatus() != status;
             booking.setStatus(status);
             Booking updatedBooking = bookingRepository.save(booking);
 
-            // Gửi email thông báo khi trạng thái thay đổi
-            if (status == BookingStatus.CONFIRMED) {
-                sendBookingEmail(updatedBooking, "CONFIRMED");
-            } else if (status == BookingStatus.CANCELLED) {
-                sendBookingEmail(updatedBooking, "CANCELLED");
+            if (isStatusChanged) {
+                // Gửi email thông báo khi trạng thái thay đổi
+                if (status == BookingStatus.CONFIRMED) {
+                    sendBookingEmail(updatedBooking, "CONFIRMED");
+                } else if (status == BookingStatus.CANCELLED) {
+                    sendBookingEmail(updatedBooking, "CANCELLED");
+                }
             }
 
             return updatedBooking;

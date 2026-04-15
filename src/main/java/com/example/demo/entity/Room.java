@@ -20,4 +20,7 @@ public class Room {
     private Integer maxAdults;
     @Column(name = "max_children", columnDefinition = "INT DEFAULT 0")
     private Integer maxChildren;
+
+    @Transient
+    private BigDecimal dynamicPrice;
 }

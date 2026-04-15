@@ -125,17 +125,19 @@ public class PayOSController {
             Optional<Booking> bookingOpt = bookingRepository.findByOrderCode(orderCode);
             if (bookingOpt.isPresent()) {
                 Booking booking = bookingOpt.get();
-                booking.setStatus(BookingStatus.CONFIRMED);
-                bookingRepository.save(booking);
-                System.out.println("Webhook: Da tu dong xac nhan don hang " + booking.getBookingCode() + " thanh cong!");
+                if (booking.getStatus() != BookingStatus.CONFIRMED) {
+                    booking.setStatus(BookingStatus.CONFIRMED);
+                    bookingRepository.save(booking);
+                    System.out.println("Webhook: Da tu dong xac nhan don hang " + booking.getBookingCode() + " thanh cong!");
 
-                // Gửi email thông báo thanh toán thành công
-                if (booking.getUser() != null && booking.getUser().getEmail() != null) {
-                    emailService.sendPaymentSuccess(
-                        booking,
-                        booking.getUser().getEmail(),
-                        booking.getUser().getFullName()
-                    );
+                    // Gửi email thông báo thanh toán thành công
+                    if (booking.getUser() != null && booking.getUser().getEmail() != null) {
+                        emailService.sendPaymentSuccess(
+                            booking,
+                            booking.getUser().getEmail(),
+                            booking.getUser().getFullName()
+                        );
+                    }
                 }
             }
 

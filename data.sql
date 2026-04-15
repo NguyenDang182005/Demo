@@ -53,7 +53,8 @@ INSERT INTO users (id, email, password, full_name, phone_number, role) VALUES
 (17, 'cus_nt1@example.com', '$2a$10$xyz...', 'Doan Q', '0905555555', 'CUSTOMER'),
 (18, 'cus_nt2@example.com', '$2a$10$xyz...', 'Ha Thi R', '0906666666', 'CUSTOMER'),
 (19, 'car_owner@example.com', '$2a$10$xyz...', 'Trinh S', '0907777777', 'OWNER'),
-(20, 'tour_agent@example.com', '$2a$10$xyz...', 'Dinh T', '0908888888', 'OWNER');
+(20, 'tour_agent@example.com', '$2a$10$xyz...', 'Dinh T', '0908888888', 'OWNER'),
+(21, 'admin2@example.com', '$2a$10$5yFqWOy09Rc8PBFH1lTDaOzSrxL4G9S5HXOmGeTvL97.UT.RfFzue', 'Admin 2', '0988887777', 'ADMIN');
 
 
 -- ==========================================
@@ -524,3 +525,32 @@ INSERT INTO reviews (user_id, hotel_id, rating, comment, created_at) VALUES
 (9,  16, 4, 'Pullman Phú Quốc có bãi biển riêng đẹp lắm, tiện nghi đầy đủ, xứng đáng nghỉ dưỡng.', ADDDATE(CURRENT_TIMESTAMP, -18)),
 (10, 12, 5, 'Furama Resort Đà Nẵng tuyệt vời, bãi biển sạch và nhân viên phục vụ rất thân thiện.', ADDDATE(CURRENT_TIMESTAMP, -11)),
 (12, 24, 4, 'Dalat Palace là khách sạn di sản tuyệt đẹp, không khí lãng mạn rất phù hợp cho cặp đôi.', ADDDATE(CURRENT_TIMESTAMP, -25));
+
+-- ==========================================
+-- 12. Create Settings (3 records)
+-- ==========================================
+INSERT INTO settings (`key`, `value`, updated_at) VALUES 
+('site_name', 'Booking System', CURRENT_TIMESTAMP),
+('contact_email', 'admin2@example.com', CURRENT_TIMESTAMP),
+('maintenance_mode', 'false', CURRENT_TIMESTAMP);
+
+-- ==========================================
+-- 13. Create Galleries (5 records)
+-- ==========================================
+INSERT INTO galleries (id, url, title, category, created_at) VALUES 
+(1, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800', 'Sunset View', 'Hotel', CURRENT_TIMESTAMP),
+(2, 'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800', 'Beautiful Beach', 'View', CURRENT_TIMESTAMP),
+(3, 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800', 'Resort Pool', 'Facilities', CURRENT_TIMESTAMP),
+(4, 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800', 'Mountain Retreat', 'Exterior', CURRENT_TIMESTAMP),
+(5, 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800', 'Modern Room', 'Interior', CURRENT_TIMESTAMP);
+
+-- ==========================================
+-- 14. Create Dynamic Prices (5 records)
+-- ==========================================
+INSERT INTO dynamic_prices (id, service_type, service_id, target_date, dynamic_price, multiplier) VALUES 
+(1, 'ROOM', 1, ADDDATE(CURDATE(), 1), NULL, 1.20),
+(2, 'FLIGHT', 1, CURDATE(), 2000000.00, NULL),
+(3, 'CAR', 1, ADDDATE(CURDATE(), 2), NULL, 1.50),
+(4, 'ATTRACTION', 1, CURDATE(), 45000.00, NULL),
+(5, 'TAXI', 1, ADDDATE(CURDATE(), 1), NULL, 1.10);
+

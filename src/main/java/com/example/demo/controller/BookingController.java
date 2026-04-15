@@ -41,9 +41,8 @@ public class BookingController {
     public org.springframework.http.ResponseEntity<?> confirmByCode(@PathVariable String code) {
         return bookingService.getBookingByCode(code)
             .map(booking -> {
-                booking.setStatus(com.example.demo.entity.BookingStatus.CONFIRMED);
-                bookingService.saveBooking(booking);
-                return org.springframework.http.ResponseEntity.ok(booking);
+                Booking updated = bookingService.updateStatus(booking.getId(), com.example.demo.entity.BookingStatus.CONFIRMED);
+                return org.springframework.http.ResponseEntity.ok(updated);
             })
             .orElse(org.springframework.http.ResponseEntity.notFound().build());
     }
